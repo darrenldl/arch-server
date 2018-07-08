@@ -36,7 +36,7 @@ ask_if_correct(ret)
 
 default_wait=1
 wait_and_clear(v)
-  if $# = 0
+  if $# == 0
     sleep $default_wait
   else
     sleep $v
@@ -47,7 +47,7 @@ tell_press_enter()
   read
 
 install_with_retries(package_name, mount_path)
-  if $# = 0
+  if $# == 0
     echo "Too few parameters"
     exit
   retries=5
@@ -55,11 +55,11 @@ install_with_retries(package_name, mount_path)
   while true
     echo "Installing ""$package_name"" package"
     arch-chroot "$mount_path" pacman --noconfirm -S $package_name
-    if $? = 0
+    if $? == 0
       break
     else
       retries_left=$[$retries_left - 1]
-    if $retries_left = 0
+    if $retries_left == 0
       echo "Package install failed ""$retries"" times"
       ask_yn change_name "Do you want to change package name before continuing retry?"
       if $change_name

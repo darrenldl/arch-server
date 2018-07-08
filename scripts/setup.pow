@@ -55,7 +55,7 @@ end=false
 while not $end
   ask_ans config["editor"] "Please specifiy an editor to use : "
   if -x $(command -v ${config["editor"]})
-    echo "Editor selected : " $config["editor"]
+    echo Editor selected : $config["editor"]
     ask_if_correct end
   else
     echo -e $NO_COMMAND

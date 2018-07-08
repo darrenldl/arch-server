@@ -75,7 +75,7 @@ ask_if_correct(){
 default_wait=1
 wait_and_clear(){
   local v="${1}"
-  if [[ $# = 0 ]]; then
+  if [[ $# == 0 ]]; then
     sleep "$default_wait"
   else
     sleep "$v"
@@ -91,7 +91,7 @@ tell_press_enter(){
 install_with_retries(){
   local package_name="${1}"
   local mount_path="${2}"
-  if [[ $# = 0 ]]; then
+  if [[ $# == 0 ]]; then
     echo "Too few parameters"
     exit
   fi
@@ -100,12 +100,12 @@ install_with_retries(){
   while true; do
     echo "Installing ""$package_name"" package"
     arch-chroot "$mount_path" pacman --noconfirm -S "$package_name"
-    if [[ $? = 0 ]]; then
+    if [[ $? == 0 ]]; then
       break
     else
       retries_left="${[$retries_left - 1]}"
     fi
-    if [[ "$retries_left" = 0 ]]; then
+    if [[ "$retries_left" == 0 ]]; then
       echo "Package install failed ""$retries"" times"
       ask_yn change_name "Do you want to change package name before continuing retry?"
       if [[ "$change_name" ]]; then
@@ -172,7 +172,7 @@ end=false
 while [[ ! "$end" ]]; do
   ask_ans config["editor"] "Please specifiy an editor to use : "
   if [[ -x "$(command -v "${config["editor"]}")" ]]; then
-    echo "Editor selected : " "${config["editor"]}"
+    echo Editor selected : "${config["editor"]}"
     ask_if_correct end
   else
     echo -e "$NO_COMMAND"
