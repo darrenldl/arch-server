@@ -3,11 +3,17 @@
 INVALID_ANS="Invalid answer"
 
 ask_ans(ret, msg)
+  if $# <= 1
+    echo "Too few parameters"
+    exit
   echo -ne $msg" : "
   read ans
   eval "$ret=$ans"
 
 ask_yn(ret, msg)
+  if $# <= 1
+    echo "Too few parameters"
+    exit
   while true
     echo -ne $msg" y/n : "
     read ans
@@ -26,7 +32,7 @@ ask_if_correct(ret)
 
 default_wait=1
 wait_and_clear(v)
-  if $# is 0
+  if $# = 0
     sleep $default_wait
   else
     sleep $v
@@ -35,3 +41,26 @@ wait_and_clear(v)
 tell_press_enter()
   echo "Press enter to continue"
   read
+
+install_with_retries(package_name, mount_path)
+  if $# = 0
+    echo "Too few parameters"
+    exit
+  retries=5
+  retries_left=$retries
+  while true
+    echo "Installing ""$package_name"" package"
+    arch-chroot "$mount_path" pacman --noconfirm -S $package_name
+    if $? = 0
+      break
+    else
+      retries_left=$[$retries_left - 1]
+    if $retries_left = 0
+      echo "Package install failed ""$retries"" times"
+      ask_yn change_name "Do you want to change package name before continuing retry?"
+      if $change_name
+        ask_new_name_end=false
+        while not $ask_new_name_end
+          ask_ans package_name "Please enter new package name : "
+          ask_if_correct ask_new_name_end
+      retries_left=$retries

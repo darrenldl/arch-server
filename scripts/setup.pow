@@ -2,6 +2,8 @@
 
 require 'utils.pow'
 
+NO_COMMAND="Command not found"
+
 # ask_ans ans "Coffee or tea?"
 ask_yn ans "Do you like coffee?"
 echo $ans
@@ -53,4 +55,9 @@ echo ""
 
 end=false
 while not $end
-  EDITOR=
+  ask_ans EDITOR "Please specifiy an editor to use : "
+  if hash $EDITOR &>/dev/null
+    echo "Editor selected : " $EDITOR
+    ask_if_correct end
+  else
+    echo -e $NO_COMMAND
