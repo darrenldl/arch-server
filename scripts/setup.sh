@@ -169,7 +169,7 @@ echo "Choose editor"
 echo ""
 
 end=false
-while [[ ! "$end" ]]; do
+while [[ "$end" -ne true ]]; do
   ask_ans config["editor"] "Please specifiy an editor to use : "
   if [[ -x "$(command -v "${config["editor"]}")" ]]; then
     echo Editor selected : "${config["editor"]}"
@@ -188,7 +188,7 @@ tell_press_enter
 
 mirrorlist_path="/etc/pacman.d/mirrorlist"
 end=false
-while [[ ! "$end" ]]; do
+while [[ "$end" -ne true ]]; do
   "${config["editor"]}" $mirrorlist_path
   clear
   ask_yn end "Finished editing"
@@ -200,7 +200,7 @@ echo "Choose system partition"
 echo ""
 
 end=false
-while [[ ! "$end" ]]; do
+while [[ "$end" -ne true ]]; do
   echo -n "Please specify the system disk : "
   read config["sys_disk"]
   if [[ -b "${config["sys_disk"]}" ]]; then
