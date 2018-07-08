@@ -7,3 +7,50 @@ ask_yn ans "Do you like coffee?"
 echo $ans
 ask_if_correct ans
 echo $ans
+
+# Show stages
+cat <<STAGEEOF
+Stages:
+    update time
+    choose editor
+    configure mirrorlist
+    set hostname
+    set locale
+    update package database
+    install system
+    setup GRUB
+    setup GRUB config
+    intall GRUB
+    generate saltstack execution script
+    generate setup note
+    add user
+    install saltstack             (optional)
+      |-> copy saltstack files          (optional)
+      |-> execute salt for final setup  (optional)
+    close all disks               (optional)
+    restart                       (optional)
+
+STAGEEOF
+
+tell_press_enter
+clear
+
+# Update time
+echo "Updating time"
+timedatectl set-ntp true
+
+echo ""
+echo -n "Current time : "
+date
+
+wait_and_clear 5
+
+config={}
+
+# Choose editor
+echo "Choose editor"
+echo ""
+
+end=false
+while not $end
+  EDITOR=
