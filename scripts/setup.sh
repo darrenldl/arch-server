@@ -281,11 +281,11 @@ if "${config["efi_mode"]}" == true
   #
   echo "Partitioning"
   parted -a optimal "${config["sys_disk"]}" mkpart primary fat32 \
-    "$esp_part_beg_perc"  "$esp_part_end_perc"  &>/dev/null
+    "$esp_part_beg_perc%"  "$esp_part_end_perc%"  &>/dev/null
   parted -a optimal "${config["sys_disk"]}" mkpart primary       \
-    "$boot_part_beg_perc" "$boot_part_end_perc" &>/dev/null
+    "$boot_part_beg_perc%" "$boot_part_end_perc%" &>/dev/null
   parted -a optimal "${config["sys_disk"]}" mkpart primary       \
-    "$root_part_beg_perc" "$root_part_end_perc" &>/dev/null
+    "$root_part_beg_perc%" "$root_part_end_perc%" &>/dev/null
   #
   parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
@@ -302,7 +302,15 @@ else
   parted "${config["sys_disk"]}" mklabel msdos &>/dev/null
   #
   echo "Partitioning"
-  parted -a optimal "${config["sys_disk"]}" mkpart primary  0%  25% &>/dev/null
+  boot_part_size=200
+  boot_part_perc="${[($esp_part_end_perc * 100) / ${config["sys_disk_size_MiB"]}"
+  boot_part_beg_perc=0
+  boot_part_end_perc="$boot_part_perc"
+  #
+  parted -a optimal "${config["sys_disk"]}" mkpart primary \
+    "$boot_part_start_perc%"  "$boot_part_end_perc%" &>/dev/null
+  parted -a optimal "${config["sys_disk"]}" mkpart primary \
+    "$boot_part_end_perc%" "100%" &>/dev/null
   #
   parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
