@@ -2,12 +2,9 @@
 
 INVALID_ANS="Invalid answer"
 
-print_keyval(k, v)
-  echo key=$k val=$v
-
 print_map(m)
   for k,v in m
-    print_keyval k v
+    echo key=$k val=$v
 
 ask_ans(ret, msg)
   if $# <= 1
