@@ -39,7 +39,7 @@ INVALID_ANS="Invalid answer"
 print_keyval(){
   local k="${1}"
   local v="${2}"
-  echo "key=""$k"", val="$v"
+  echo "key=" "$k" ", val=" "$v"
 }
 
 print_map(){

@@ -3,7 +3,7 @@
 INVALID_ANS="Invalid answer"
 
 print_keyval(k, v)
-  echo "key="$k", val="$v
+  echo "key=" $k ", val=" $v
 
 print_map(m)
   map m print_keyval
