@@ -170,7 +170,7 @@ echo ""
 
 end=false
 while [[ "$end" == false ]]; do
-  ask_ans config["editor"] "Please specifiy an editor to use : "
+  ask_ans config["editor"] "Please specifiy an editor to use"
   if [[ -x "$(command -v "${config["editor"]}")" ]]; then
     echo Editor selected : "${config["editor"]}"
     ask_if_correct end
@@ -201,8 +201,7 @@ echo ""
 
 end=false
 while [[ "$end" == false ]]; do
-  echo -n "Please specify the system disk : "
-  read config["sys_disk"]
+  ask_ans config["sys_disk"] "Please specify the system disk"
   if [[ -b "${config["sys_disk"]}" ]]; then
     echo "System parition picked :" ""${config["sys_disk"]}""
     ask_if_correct end
