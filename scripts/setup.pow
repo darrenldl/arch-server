@@ -4,18 +4,13 @@ require 'utils.pow'
 
 NO_COMMAND="Command not found"
 
-# ask_ans ans "Coffee or tea?"
-ask_yn ans "Do you like coffee?"
-echo $ans
-ask_if_correct ans
-echo $ans
-
 # Show stages
 cat <<STAGEEOF
 Stages:
     update time
     choose editor
     configure mirrorlist
+    choose system partition
     set hostname
     set locale
     update package database
@@ -23,6 +18,8 @@ Stages:
     setup GRUB
     setup GRUB config
     intall GRUB
+    install SSH
+    setup SSH
     generate saltstack execution script
     generate setup note
     add user
@@ -55,9 +52,44 @@ echo ""
 
 end=false
 while not $end
-  ask_ans EDITOR "Please specifiy an editor to use : "
-  if hash $EDITOR &>/dev/null
-    echo "Editor selected : " $EDITOR
+  ask_ans config["editor"] "Please specifiy an editor to use : "
+  if hash $config["editor"] &>/dev/null
+    echo "Editor selected : " $config["editor"]
     ask_if_correct end
   else
     echo -e $NO_COMMAND
+
+clear
+
+# Configure mirrorlist
+echo "Configure mirrorlist"
+echo ""
+
+tell_press_enter
+
+mirrorlist_path="/etc/pacman.d/mirrorlist"
+end=false
+while not $end
+  $config["editor"] $mirrorlist_path
+  clear
+  ask_yn end "Finished editing"
+
+clear
+
+# Choose system partition
+echo "Choose system partition"
+echo ""
+
+end=false
+while not $end
+  echo -n "Please specify a partition to use : "
+  read config["sys_part"]
+  if -b $SYS_PART
+    echo "System parition picked :" "$config["sys_part"]"
+    ask_if_correct end
+  else
+    echo "Partition does not exist"
+
+clear
+
+print_map config
