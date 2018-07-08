@@ -10,7 +10,8 @@ Stages:
     update time
     choose editor
     configure mirrorlist
-    choose system partition
+    choose system disk
+    setup partitions
     set hostname
     set locale
     update package database
