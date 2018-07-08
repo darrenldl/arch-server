@@ -213,7 +213,7 @@ done
 
 clear
 
-print_map config
+print_map "$config"
 
 # wait for all async child processes (because "await ... then" is used in powscript)
 [[ $ASYNC == 1 ]] && wait
