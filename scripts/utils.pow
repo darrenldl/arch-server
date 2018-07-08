@@ -3,7 +3,7 @@
 INVALID_ANS="Invalid answer"
 
 print_map(m)
-  for k,v in m
+  for k,v in $m
     echo key=$k val=$v
 
 ask_ans(ret, msg)
@@ -21,11 +21,11 @@ ask_yn(ret, msg)
   while true
     echo -ne $msg" y/n : "
     read ans
-    if $ans is "y"
+    if $ans == "y"
       eval "$ret=true"
       break
     else
-      if $ans is "n"
+      if $ans == "n"
         eval "$ret=false"
         break
       else
