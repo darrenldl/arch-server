@@ -32,6 +32,16 @@ map ()
     eval "for i in \"\${!$arr[@]}\"; do $func \"\$@\" \"\$i\" \"\${$arr[\$i]}\"; done"
 }
 
+on () 
+{ 
+    func="$1";
+    shift;
+    for sig in "$@";
+    do
+        trap "$func $sig" "$sig";
+    done
+}
+
 
 
 INVALID_ANS="Invalid answer"
@@ -227,6 +237,78 @@ while [[ "$end" == false ]]; do
 done
 
 clear
+
+efi_firmware_path="/sys/firmware/efi"
+
+if [[ -e "$efi_firmware_path" ]]; then
+  echo "System is in UEFI mode"
+  config["efi_mode"]=true
+else
+  echo "System is in BIOS mode"
+  config["efi_mode"]=false
+fi
+
+wait_and_clear 1
+
+echo "Wiping paritioning info"
+dd if=/dev/zero of="${config["sys_disk"]}" bs=512 count=2 &>/dev/null
+
+wait_and_clear 2
+
+config["sys_disk_size_bytes"]="$(fdisk -l "$USB_KEY" | head -n 1 | sed "s|.*, \(.*\) bytes.*||")"
+config["sys_disk_size_KiB"]}"
+config["sys_disk_size_MiB"]}"
+config["sys_disk_size_GiB"]}"
+
+if "${config["efi_mode"]}" == true
+  echo "Creating GPT partition table"
+  parted "${config["sys_disk"]}" mklabel gpt &>/dev/null
+  echo "Calculating partition sizes"
+  # use MiB for rough estimation
+  # calculate % of 200 MiB size
+  esp_part_size=200
+  esp_part_perc="${[($esp_part_size * 100) / ${config["sys_disk_size_MiB"]}"
+  esp_part_beg_perc=0
+  esp_part_end_perc="$esp_part_perc"
+  #
+  boot_part_size=200
+  boot_part_perc="${[($esp_part_end_perc * 100) / ${config["sys_disk_size_MiB"]}"
+  boot_part_beg_perc="$esp_part_end_perc"
+  boot_part_end_perc="${[$boot_part_beg_perc + $boot_part_perc]}"
+  #
+  root_part_beg_perc="$boot_part_end_perc"
+  root_part_end_perc=100
+  #
+  echo "Partitioning"
+  parted -a optimal "${config["sys_disk"]}" mkpart primary fat32 \
+    "$esp_part_beg_perc"  "$esp_part_end_perc"  &>/dev/null
+  parted -a optimal "${config["sys_disk"]}" mkpart primary       \
+    "$boot_part_beg_perc" "$boot_part_end_perc" &>/dev/null
+  parted -a optimal "${config["sys_disk"]}" mkpart primary       \
+    "$root_part_beg_perc" "$root_part_end_perc" &>/dev/null
+  #
+  parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
+  #
+  config["sys_disk_esp"]}"1
+  #
+  echo "Formatting ESP partition"
+  mkfs.fat -F32 "${config["sys_disk_esp"]}"
+  #
+  config["sys_disk_esp_uuid"]}" | sed -n "s@\(.*\)UUID=\"\(.*\)\" TYPE\(.*\)@\2@p")
+  config["sys_disk_boot"]}"2
+  fi
+else
+  echo "Creating MBR partition table"
+  parted "${config["sys_disk"]}" mklabel msdos &>/dev/null
+  #
+  echo "Partitioning"
+  parted -a optimal "${config["sys_disk"]}" mkpart primary  0%  25% &>/dev/null
+  #
+  parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
+  #
+  config["sys_disk_boot"]}"1
+
+wait_and_clear 2
 
 print_map config
 
