@@ -186,13 +186,13 @@ echo ""
 end=false
 while [[ ! "$end" ]]; do
   ask_ans config["editor"] "Please specifiy an editor to use : "
-  if hash "${config["editor"]}" &>/dev/null
+  if [[ -x "$(command -v "${config["editor"]}")" ]]; then
     echo "Editor selected : " "${config["editor"]}"
     ask_if_correct end
-  done
   else
     echo -e "$NO_COMMAND"
   fi
+done
 
 clear
 
@@ -216,13 +216,13 @@ echo ""
 
 end=false
 while [[ ! "$end" ]]; do
-  echo -n "Please specify a partition to use : "
-  read config["sys_part"]
-  if [[ -b "$SYS_PART" ]]; then
-    echo "System parition picked :" ""${config["sys_part"]}""
+  echo -n "Please specify the system disk : "
+  read config["sys_disk"]
+  if [[ -b "${config["sys_disk"]}" ]]; then
+    echo "System parition picked :" ""${config["sys_disk"]}""
     ask_if_correct end
   else
-    echo "Partition does not exist"
+    echo "Disk does not exist"
   fi
 done
 
