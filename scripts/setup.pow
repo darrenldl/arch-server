@@ -92,4 +92,4 @@ while $end == false
 
 clear
 
-print_map $config
+print_map config
