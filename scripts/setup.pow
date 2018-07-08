@@ -77,7 +77,7 @@ while not $end
 
 clear
 
-# Choose system partition
+# Choose system disk
 echo "Choose system partition"
 echo ""
 
