@@ -353,7 +353,7 @@ echo "Mounting system partition"
 mount "${config["sys_part_root"]}" "${config["mount_path"]}"
 
 echo "Creating boot directory"
-mkdir "${config["mount_path"]}"/boot
+mkdir -p "${config["mount_path"]}"/boot
 
 wait_and_clear 2
 
@@ -380,7 +380,7 @@ done
 clear
 
 echo "Generating fstab"
-mkdir "${config["mount_path"]}"/etc
+mkdir -p "${config["mount_path"]}"/etc
 genfstab -U "${config["mount_path"]}" >> "${config["mount_path"]}"/etc/fstab
 
 wait_and_clear 2
