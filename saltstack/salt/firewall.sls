@@ -11,7 +11,7 @@ Install ferm:
 Copy ferm config:
   file.managed:
     - name: {{ pillar['firewall']['ferm_path'] }}
-    - source: salt://basic_workstation.ferm
+    - source: salt://basic_server.ferm
     - replace: True
     - require:
       - Install ferm
