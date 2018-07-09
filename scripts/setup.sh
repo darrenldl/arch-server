@@ -266,10 +266,10 @@ dd if=/dev/zero of="${config["sys_disk"]}" bs=512 count=2 &>/dev/null
 
 wait_and_clear 2
 
-config["sys_disk_size_bytes"]="$(fdisk -l "${config['sys_disk']}" | head -n 1 | sed "s|.*, \(.*\) bytes.*||")"
-config["sys_disk_size_KiB"]="$( math "${config['sys_disk_size_bytes']} / 1024" )"
-config["sys_disk_size_MiB"]="$( math "${config['sys_disk_size_KiB']} / 1024" )"
-config["sys_disk_size_GiB"]="$( math "${config['sys_disk_size_MiB']} / 1024" )"
+config["sys_disk_size_bytes"]="$(fdisk -l "${config["sys_disk"]}" | head -n 1 | sed "s|.*, \(.*\) bytes.*||")"
+config["sys_disk_size_KiB"]="$(math "${config["sys_disk_size_bytes"]} / 1024")"
+config["sys_disk_size_MiB"]="$(math "${config["sys_disk_size_KiB"]} / 1024")"
+config["sys_disk_size_GiB"]="$(math "${config["sys_disk_size_MiB"]} / 1024")"
 
 if [[ "${config["efi_mode"]}" == true ]]; then
   echo "Creating GPT partition table"
