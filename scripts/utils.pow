@@ -2,18 +2,18 @@
 
 INVALID_ANS="Invalid answer"
 
-print_kv(k,v)
+print_kv(k v)
   echo $k "->" $v
 
 print_map(m)
   map $m print_kv
 
-div_rup(a, b)
+div_rup(a b)
   a=$(math $a)
   b=$(math $b)
-  math "(a + b - 1) / b"
+  math (($a + $b - 1) / $b)
 
-ask_ans(ret, msg)
+ask_ans(ret msg)
   if $# <= 1
     echo "Too few parameters"
     exit
@@ -21,7 +21,7 @@ ask_ans(ret, msg)
   read ans
   eval "$ret=$ans"
 
-ask_yn(ret, msg)
+ask_yn(ret msg)
   if $# <= 1
     echo "Too few parameters"
     exit
