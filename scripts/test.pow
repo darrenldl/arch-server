@@ -9,3 +9,33 @@ print_config()
 
 echo $(div_rup config["a"] 3)
 print_config
+
+config["ip_addr"]=$(ip route get 8.8.8.8 | awk $awk_cmd)
+config["port"]=40001
+
+end=false
+while $end == false
+  pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
+  #
+  echo "Transfer the PUBLIC key to the server using one of the following commands"
+  echo "cat PUBKEY | gpg -c | nc ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
+  echo "or"
+  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | nc ${config["ip_addr"]} ${config["port"]}"
+  #
+  nc -lp $config["port"] > pub_key.gpg
+  echo "File received"
+  echo "Decrypting file"
+  gpg --batch --yes --passphrase $pass --decrypt pub_key.gpg > pub_key
+  if $? == 0
+    echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
+    #
+    ask_end=false
+    while $ask_end == false
+      ask_ans match "Does the hash match the hash of the original file?"
+      ask_if_correct ask_end
+    if $match == true
+      break
+    else
+      :
+  else
+    echo "Decryption failed"
