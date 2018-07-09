@@ -1,8 +1,3 @@
-Install FWBuilder:
-  pkg.installed:
-    - pkgs:
-      - fwbuilder
-
 Install ferm:
   pkg.installed:
     - pkgs:
