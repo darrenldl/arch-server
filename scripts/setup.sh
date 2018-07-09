@@ -557,16 +557,16 @@ while [[ "$end" == false ]]; do
   pass="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
   #
   echo "Transfer the PUBLIC key to the server using one of the following commands"
-  echo "cat PUBKEY | gpg -c | ncat ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
+  echo "openssl enc -aes-256-cbc -salt -a -e -in PUBKEY | ncat ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
   echo "or"
-  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | ncat ${config["ip_addr"]} ${config["port"]}"
+  echo "openssl enc -aes-256-cbc -salt -a -e -pass pass:$pass -in PUBKEY | ncat ${config["ip_addr"]} ${config["port"]}"
   #
-  ncat -lp "${config["port"]}" > pub_key.gpg
+  ncat -lp "${config["port"]}" > pub_key.enc
   echo "File received"
-  echo "Decrypting file"
-  gpg --batch --yes --passphrase "$pass" --decrypt pub_key.gpg -o pub_key
+  # echo "Decrypting file"
+  openssl enc -aes-256-cbc  -salt -a -d -pass pass:"$pass" -in pub_key.enc -out pub_key
   if [[ $? == 0 ]]; then
-    echo "SHA256 hash of decrypted file :" "$(sha256sum pub_key)"
+    echo "SHA256 hash of received file :" "$(sha256sum pub_key)"
     #
     ask_end=false
     while [[ "$ask_end" == false ]]; do
