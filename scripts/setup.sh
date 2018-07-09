@@ -313,7 +313,7 @@ else
   #
   echo "Partitioning"
   boot_part_size=200
-  boot_part_perc="$( math "($esp_part_end_perc * 100)"" / "${config['sys_disk_size_MiB']}"" )
+  boot_part_perc="$( math "($boot_part_size * 100)"" / "${config['sys_disk_size_MiB']}"" )
   boot_part_beg_perc=0
   boot_part_end_perc="$boot_part_perc"
   #
