@@ -183,14 +183,13 @@ Stages:
     setup GRUB
     setup GRUB config
     intall GRUB
-    install SSH
-    setup SSH
     generate saltstack execution script
     generate setup note
     add user
-    install saltstack             (optional)
-      |-> copy saltstack files          (optional)
-      |-> execute salt for final setup  (optional)
+    install SSH
+    setup SSH
+    install saltstack
+    copy saltstack files
     close all disks               (optional)
     restart                       (optional)
 
@@ -403,7 +402,198 @@ arch-chroot "${config["mount_path"]}" locale-gen
 
 wait_and_clear 2
 
+while true; do
+  echo "Updating package database"
+  arch-chroot "${config["mount_path"]}" pacman --noconfirm -Sy
+  if [[ $? == 0 ]]; then
+    break
+  else
+    :
+  fi
+done
+
+while true; do
+  echo "Installing prerequisites for wifi-menu"
+  arch-chroot "$mount_path" pacman --noconfirm -S dialog wpa_supplicant
+  if [[ $? == 0 ]]; then
+    break
+  else
+    :
+  fi
+done
+
+clear
+
+while true; do
+  echo "Setting root password"
+  arch-chroot "${config["mount_path"]}" passwd
+  if [[ $? == 0 ]]; then
+    break
+  else
+    :
+  fi
+done
+
+clear
+
+install_with_retries "grub"
+
+if [[ "${config["efi_mode"]}" == true ]]; then
+  install_with_retries "efibootmgr"
+  install_with_retries "efitools"
+fi
+
+clear
+
+echo "Install grub onto system disk"
+if [[ "${config["efi_mode"]}" == true ]]; then
+  echo "Reset ESP directory"
+  rm -rf "${config["mount_path"]}"/boot/efi
+  mkdir -p "${config["mount_path"]}"/boot/efi
+  #
+  echo "Mounting ESP partition"
+  mount "${config["sys_part_esp"]}" "${config["mount_path"]}"/boot/efi
+  #
+  arch-chroot "${config["mount_path"]}" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
+else
+  arch-chroot "${config["mount_path"]}" grub-install --target=i386-pc --boot-directory=/boot "${config["sys_disk"]}"
+fi
+
+echo "Generating grub configuration file"
+arch-chroot "${config["mount_path"]}" grub-mkconfig -o /boot/grub/grub.cfg
+
+wait_and_clear 2
+
+echo "Setting up files in /root directory"
+config["lssh_dir_name"]="lssh_pack"
+config["lssh_dir_path"]="${config["mount_path"]}"/root/"${config["lssh_dir_name"]}"
+mkdir -p "${config["lssh_dir_path"]}"
+
+echo "Copying useradd helper scripts"
+config["useradd_helper1_name"]="useradd_helper_as_powerful.sh"
+config["useradd_helper1_path"]="${config["llsh_dir_path"]}"/"${config["useradd_helper1_name"]}"
+cp "$selfpath"/"${config["useradd_helper1_name"]}" "${config["useradd_helper1_path"]}"
+chmod u=rx "${config["useradd_helper1_path"]}"
+chmod g=rx "${config["useradd_helper1_path"]}"
+chmod o=   "${config["useradd_helper1_path"]}"
+
+config["useradd_helper2_name"]="useradd_helper_restricted.sh"
+config["useradd_helper2_path"]="${config["llsh_dir_path"]}"/"${config["useradd_helper2_name"]}"
+cp "$selfpath"/"${config["useradd_helper2_name"]}" "${config["useradd_helper2_path"]}"
+chmod u=rx "${config["useradd_helper2_path"]}"
+chmod g=rx "${config["useradd_helper2_path"]}"
+chmod o=   "${config["useradd_helper2_path"]}"
+
+echo "User setup"
+echo ""
+
+while true; do
+  ask_end=false
+  while [[ "$ask_end" == false ]]; do
+    ask_ans config["user_name"] "Please enter the main user name(this will be used for SSH access)"
+    echo "You entered : " "${config["user_name"]}"
+    ask_if_correct ask_end
+  done
+  #
+  echo "Adding user"
+  arch-chroot "${config["mount_path"]}" useradd -m "${config["user_name"]}" -G users,wheel,rfkill
+  if [[ $? == 0 ]]; then
+    break
+  else
+    echo "Failed to add user"
+    echo "Please check whether the user name is correctly specified and if acceptable by the system"
+    tell_press_enter
+  fi
+done
+
+while true; do
+  echo "Setting password for user :" "${config["user_name"]}"
+  arch-chroot "${config["mount_path"]}" passwd "${config["user_name"]}"
+  if [[ $? == 0 ]]; then
+    break
+  else
+    echo "Failed to set password"
+    echo "Please repeat the procedure"
+    tell_press_enter
+  fi
+done
+
+echo "User :" "${config["user_name"]}" "added"
+
+wait_and_clear 2
+
+echo "Generating saltstack execution script"
+config["salt_exec_script_name"]="salt_exec.sh"
+config["salt_exec_script_path"]="${config["lssh_dir_path"]}"/"${config["salt_exec_script_name"]}"
+cp salt_stack_execute_template "${config["salt_exec_script_path"]}"
+chown root:root "${config["salt_exec_script_path"]}"
+chmod u=rx "${config["salt_exec_script_path"]}"
+chmod g=rx "${config["salt_exec_script_path"]}"
+chmod o=   "${config["salt_exec_script_path"]}"
+
+install_with_retries "salt"
+
+wait_and_clear 2
+
+echo "Updating saltstack config"
+sed -i "s@#file_client: remote@file_client: local@g" "${config["mount_path"]}"/etc/salt/minion
+
+wait_and_clear 2
+
+config["saltstack_files_path"]="../saltstack"
+echo "Copying saltstack files over to system"
+cp -r "${config["saltstack_files_path"]}"/*   "${config["mount_path"]}"/srv
+
+wait_and_clear 2
+
+echo "Configuring salt files to target user : ""$user_name"
+sed -i "s@USER_NAME_DUMMY@""${config["user_name"]}""@g" "${config["mount_path"]}"/srv/pillar/user.sls
+
+wait_and_clear 2
+
+echo "Below is the configuration recorded"
 print_map config
+print_map config >> /root/lssh.config
+print_map config >> "${config["mount_path"]}"/root/lssh.config
+echo "The above output is also saved to /root/lssh.config and" "${config["mount_path"]}"/root/lssh.config
+
+tell_press_enter
+
+end=false
+while [[ "$end" == false ]]; do
+  ask_yn close_disks "Do you want to close the disks and USB key?"
+  ask_if_correct end
+done
+
+if [[ "$close_disks" == true ]]; then
+  umount -R /mnt
+fi
+
+clear
+
+if [[ "$close_disks" == true ]]; then
+  # Shut down
+  end=false
+  while [[ "$end" == false ]]; do
+    ask_yn shutdown_system "Do you want to shut down now?"
+    ask_if_correct end
+  done
+  if [[ "$shutdown_system" == true ]]; then
+    poweroff
+else
+  echo "No shutting down will be done by the script since the disks are not closed"
+  wait_and_clear 2
+fi
+
+cat <<ENDOFEXECEOF
+
+===============
+
+End of execution
+
+===============
+
+ENDOFEXECEOF
 
 # wait for all async child processes (because "await ... then" is used in powscript)
 [[ $ASYNC == 1 ]] && wait

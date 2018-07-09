@@ -321,7 +321,7 @@ echo ""
 
 while true
   ask_end=false
-  while ask_end == false
+  while $ask_end == false
     ask_ans config["user_name"] "Please enter the main user name(this will be used for SSH access)"
     echo "You entered : " $config["user_name"]
     ask_if_correct ask_end
@@ -383,9 +383,43 @@ sed -i "s@USER_NAME_DUMMY@"${config["user_name"]}"@g" ${config["mount_path"]}/sr
 
 wait_and_clear 2
 
-# Wrapping up
+# Output config file
 echo "Below is the configuration recorded"
 print_map config
 print_map config >> /root/lssh.config
 print_map config >> $config["mount_path"]/root/lssh.config
 echo "The above output is also saved to /root/lssh.config and" $config["mount_path"]/root/lssh.config
+
+tell_press_enter
+
+end=false
+while $end == false
+  ask_yn close_disks "Do you want to close the disks and USB key?"
+  ask_if_correct end
+
+if $close_disks == true
+  umount -R /mnt
+
+clear
+
+if $close_disks == true
+  # Shut down
+  end=false
+  while $end == false
+    ask_yn shutdown_system "Do you want to shut down now?"
+    ask_if_correct end
+  if $shutdown_system == true
+    poweroff
+else
+  echo "No shutting down will be done by the script since the disks are not closed"
+  wait_and_clear 2
+
+cat <<ENDOFEXECEOF
+
+===============
+
+End of execution
+
+===============
+
+ENDOFEXECEOF
