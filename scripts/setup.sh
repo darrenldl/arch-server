@@ -300,9 +300,9 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   #
   parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
-  config["sys_part_esp"]}"1
-  config["sys_part_boot"]}"2
-  config["sys_part_root"]}"3
+  config["sys_part_esp"]="${config["sys_disk"]}"1
+  config["sys_part_boot"]="${config["sys_disk"]}"2
+  config["sys_part_root"]="${config["sys_disk"]}"3
   #
   echo "Formatting ESP partition"
   mkfs.fat -F32 "${config["sys_disk_esp"]}"
@@ -326,8 +326,8 @@ else
   #
   parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
-  config["sys_part_boot"]}"1
-  config["sys_part_root"]}"2
+  config["sys_part_boot"]="${config["sys_disk"]}"1
+  config["sys_part_root"]="${config["sys_disk"]}"2
 fi
 
 wait_and_clear 2
