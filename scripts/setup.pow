@@ -109,10 +109,10 @@ dd if=/dev/zero of=$config["sys_disk"] bs=512 count=2 &>/dev/null
 
 wait_and_clear 2
 
-config["sys_disk_size_bytes"]=$(fdisk -l $USB_KEY | head -n 1 | sed "s|.*, \(.*\) bytes.*|\1|")
-config["sys_disk_size_KiB"]=$[usb_key_size_bytes/1024]
-config["sys_disk_size_MiB"]=$[usb_key_size_KiB/1024]
-config["sys_disk_size_GiB"]=$[usb_key_size_MiB/1024]
+config["sys_disk_size_bytes"]=$(fdisk -l $config["sys_disk"] | head -n 1 | sed "s|.*, \(.*\) bytes.*|\1|")
+config["sys_disk_size_KiB"]=$[$config["sys_disk_size_bytes"]/1024]
+config["sys_disk_size_MiB"]=$[$config["sys_disk_size_KiB"]/1024]
+config["sys_disk_size_GiB"]=$[$config["sys_disk_size_MiB"]/1024]
 
 if ${config["efi_mode"]} == true
   echo "Creating GPT partition table"
