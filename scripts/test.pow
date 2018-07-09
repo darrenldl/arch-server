@@ -1,7 +1,7 @@
 #!/usr/bin/env powscript
+require 'utils.pow'
+
 config={}
+config["a"]=4
 
-config["a"]=1
-config["b"]=$(math "${config["a"]} / 1024")
-
-echo $config["b"]
+echo $(div_rup config["a"] 3)
