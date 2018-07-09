@@ -561,7 +561,7 @@ while [[ "$end" == false ]]; do
   echo "or"
   echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | nc ${config["ip_addr"]} ${config["port"]}"
   #
-  nc -lp "${config["port"]}" > pub_key
+  nc -lp "${config["port"]}" > pub_key.gpg
   echo "File received"
   echo "Decrypting file"
   gpg --batch --yes --passphrase "$pass" --decrypt pub_key.gpg > pub_key
