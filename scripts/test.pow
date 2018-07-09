@@ -27,13 +27,15 @@ while $end == false
   ncat -lp $config["port"] > pub_key.gpg
   echo "File received"
   echo "Decrypting file"
+  echo "=========="
   gpg --batch --yes --passphrase $pass -o pub_key --decrypt pub_key.gpg
+  echo "=========="
   if $? == 0
     echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
     #
     ask_end=false
     while $ask_end == false
-      ask_if_correct file_match "Does the hash match the hash of the original file?"
+      ask_yn file_match "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
     if $file_match == true
       break
