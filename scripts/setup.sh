@@ -260,7 +260,7 @@ config["sys_disk_size_KiB"]}"
 config["sys_disk_size_MiB"]}"
 config["sys_disk_size_GiB"]}"
 
-if "${config["efi_mode"]}" == true
+if [[ "${config["efi_mode"]}" == true ]]; then
   echo "Creating GPT partition table"
   parted "${config["sys_disk"]}" mklabel gpt &>/dev/null
   echo "Calculating partition sizes"
@@ -282,6 +282,7 @@ if "${config["efi_mode"]}" == true
   echo "Partitioning"
   parted -a optimal "${config["sys_disk"]}" mkpart primary fat32 \
     "$esp_part_beg_perc%"  "$esp_part_end_perc%"  &>/dev/null
+  fi
   parted -a optimal "${config["sys_disk"]}" mkpart primary       \
     "$boot_part_beg_perc%" "$boot_part_end_perc%" &>/dev/null
   parted -a optimal "${config["sys_disk"]}" mkpart primary       \
@@ -296,7 +297,6 @@ if "${config["efi_mode"]}" == true
   #
   config["sys_disk_esp_uuid"]}" | sed -n "s@\(.*\)UUID=\"\(.*\)\" TYPE\(.*\)@\2@p")
   config["sys_disk_boot"]}"2
-  fi
 else
   echo "Creating MBR partition table"
   parted "${config["sys_disk"]}" mklabel msdos &>/dev/null
@@ -309,6 +309,7 @@ else
   #
   parted -a optimal "${config["sys_disk"]}" mkpart primary \
     "$boot_part_start_perc%"  "$boot_part_end_perc%" &>/dev/null
+  fi
   parted -a optimal "${config["sys_disk"]}" mkpart primary \
     "$boot_part_end_perc%" "100%" &>/dev/null
   #

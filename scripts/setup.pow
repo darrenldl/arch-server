@@ -114,7 +114,7 @@ config["sys_disk_size_KiB"]=$[usb_key_size_bytes/1024]
 config["sys_disk_size_MiB"]=$[usb_key_size_KiB/1024]
 config["sys_disk_size_GiB"]=$[usb_key_size_MiB/1024]
 
-if $config["efi_mode"] == true
+if ${config["efi_mode"]} == true
   echo "Creating GPT partition table"
   parted $config["sys_disk"] mklabel gpt &>/dev/null
   echo "Calculating partition sizes"
