@@ -68,6 +68,12 @@ print_map(){
   map "$m" print_kv
 }
 
+div_rup(){
+  local a="${1}"
+  local b="${2}"
+  math "($a + ("$b" - 1))"
+}
+
 ask_ans(){
   local ret="${1}"
   local msg="${2}"
@@ -314,7 +320,7 @@ else
   #
   echo "Partitioning"
   boot_part_size=200
-  boot_part_perc="$(math "(boot_part_size * 100) / config["sys_disk_size_MiB"]" 3)"
+  boot_part_perc="$(div_rup "$(math "(boot_part_size * 100)")" config["sys_disk_size_MiB"])"
   boot_part_beg_perc=0
   boot_part_end_perc="$boot_part_perc"
   #
