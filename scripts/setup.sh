@@ -414,7 +414,7 @@ done
 
 while true; do
   echo "Installing prerequisites for wifi-menu"
-  arch-chroot "$mount_path" pacman --noconfirm -S dialog wpa_supplicant
+  arch-chroot "${config["mount_path"]}" pacman --noconfirm -S dialog wpa_supplicant
   if [[ $? == 0 ]]; then
     break
   else
