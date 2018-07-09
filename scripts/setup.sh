@@ -43,6 +43,11 @@ math ()
     fi
 }
 
+keys () 
+{ 
+    echo "$1"
+}
+
 on () 
 { 
     func="$1";
@@ -186,11 +191,12 @@ Stages:
     generate setup note
     add user
     install SSH
-    setup SSH
+    setup SSH server
+    setup SSH keys
     install saltstack
     copy saltstack files
-    close all disks               (optional)
-    restart                       (optional)
+    close all disks                     (optional)
+    restart                             (optional)
 
 STAGEEOF
 
@@ -518,6 +524,64 @@ while true; do
 done
 
 echo "User :" "${config["user_name"]}" "added"
+
+wait_and_clear 2
+
+echo "Install SSH"
+
+install_with_retries "openssh"
+
+wait_and_clear 2
+
+echo "Copying SSH server config over"
+
+cp ../saltstack/sshd_config /mnt/etc/ssh/
+
+wait_and_clear 2
+
+echo "Enabling SSH server"
+
+arch-chroot "${config["mount_path"]}" systemctl enable sshd
+
+wait_and_clear 2
+
+echo "Setting up SSH keys"
+
+config["ssh_key_path"]=/home/"${config["user_name"]}"/.ssh/authorized_keys
+config["ip_addr"]="$(ip route get 8.8.8.8 | awk '{print "$(NF-2)";exit}')"
+config["port"]=40001
+
+end=false
+while [[ "$end" == false ]]; do
+  pass="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
+  #
+  echo "Transfer the PUBLIC key to the server using one of the following commands"
+  echo "cat PUBKEY | gpg -c | nc ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
+  echo "or"
+  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | nc ${config["ip_addr"]} ${config["port"]}"
+  #
+  nc -l "${config["port"]}" | gpg --batch --yes --passphrase $pass -d > pub_key
+  echo "File received"
+  echo "SHA256 hash of decrypted file :" "$(sha256sum pub_key)"
+  #
+  ask_end=false
+  while [[ "$ask_end" == false ]]; do
+    ask_ans match "Does the hash match the hash of the original file?"
+    ask_if_correct ask_end
+  done
+  if [[ $=~ == true ]]; then
+    break
+  else
+    :
+  fi
+done
+
+clear
+
+echo "Installing SSH key to user :" "${config["user"]}"
+
+cat pub_key > "${config["ssh_key_path"]}"
+rm pub_key
 
 wait_and_clear 2
 
