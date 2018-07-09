@@ -566,7 +566,7 @@ while [[ "$end" == false ]]; do
   ncat -lp "${config["port"]}" > pub_key.gpg
   echo "File received"
   echo "Decrypting file"
-  gpg --batch --yes --passphrase "$pass" --decrypt pub_key.gpg -o pub_key
+  gpg --batch --yes --passphrase "$pass" -o pub_key --decrypt pub_key.gpg
   if [[ $? == 0 ]]; then
     echo "SHA256 hash of decrypted file :" "$(sha256sum pub_key)"
     #
