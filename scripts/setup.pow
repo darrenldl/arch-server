@@ -161,10 +161,13 @@ else
   boot_part_beg_perc=0
   boot_part_end_perc=$boot_part_perc
   #
+  root_part_beg_perc=$boot_part_end_perc
+  root_part_end_perc=100
+  #
   parted -a optimal $config["sys_disk"] mkpart primary \
-  "$boot_part_start_perc%"  "$boot_part_end_perc%" &>/dev/null
+  "$boot_part_beg_perc%" "$boot_part_end_perc%" &>/dev/null
   parted -a optimal $config["sys_disk"] mkpart primary \
-  "$boot_part_end_perc%" "100%" &>/dev/null
+  "$root_part_beg_perc%" "$root_part_end_perc%" &>/dev/null
   #
   parted $config["sys_disk"] set 1 boot on &>/dev/null
   #
