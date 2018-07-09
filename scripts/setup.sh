@@ -261,7 +261,7 @@ fi
 
 wait_and_clear 1
 
-echo "Wiping paritioning info"
+echo "Wiping parition table"
 dd if=/dev/zero of="${config["sys_disk"]}" bs=512 count=2 &>/dev/null
 
 wait_and_clear 2
@@ -300,7 +300,9 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   #
   parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
-  config["sys_disk_esp"]}"1
+  config["sys_part_esp"]}"1
+  config["sys_part_boot"]}"2
+  config["sys_part_root"]}"3
   #
   echo "Formatting ESP partition"
   mkfs.fat -F32 "${config["sys_disk_esp"]}"
@@ -324,10 +326,46 @@ else
   #
   parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
-  config["sys_disk_boot"]}"1
+  config["sys_part_boot"]}"1
+  config["sys_part_root"]}"2
 fi
 
 wait_and_clear 2
+
+config["mount_path"]="/mnt"
+
+echo "Formatting root partition"
+mkfs.ext4 "${config["sys_part_root"]}"
+
+echo "Mounting system partition"
+mount "${config["sys_part_root"]}"
+
+echo "Creating boot directory"
+mkdir "${config["mount_path"]}"/boot
+
+wait_and_clear 2
+
+echo "Formatting boot partition"
+mkfs.ext4 "${config["sys_part_boot"]}"
+
+wait_and_clear 2
+
+echo "Mounting boot partition"
+mount "${config["sys_part_boot"]}"/boot
+
+wait_and_clear 2
+
+while true; do
+  echo "Installing base system(base base-devel)"
+  pacstrap /mnt base base-devel
+  if [[ $? == 0 ]]; then
+    break
+  else
+    :
+  fi
+done
+
+clear
 
 print_map config
 
