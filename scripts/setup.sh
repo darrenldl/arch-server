@@ -548,7 +548,8 @@ wait_and_clear 2
 echo "Setting up SSH keys"
 
 config["ssh_key_path"]=/home/"${config["user_name"]}"/.ssh/authorized_keys
-config["ip_addr"]="$(ip route get 8.8.8.8 | awk '{print "$(NF-2)";exit}')"
+awk_cmd="{print ""\$(NF-2)"";exit}"
+config["ip_addr"]="$(ip route get 8.8.8.8 | awk "$awk_cmd")"
 config["port"]=40001
 
 end=false
@@ -560,7 +561,7 @@ while [[ "$end" == false ]]; do
   echo "or"
   echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | nc ${config["ip_addr"]} ${config["port"]}"
   #
-  nc -l "${config["port"]}" | gpg --batch --yes --passphrase $pass -d > pub_key
+  nc -l "${config["port"]}" | gpg --batch --yes --passphrase $pass -d > pub_key 2>/dev/null
   echo "File received"
   echo "SHA256 hash of decrypted file :" "$(sha256sum pub_key)"
   #
