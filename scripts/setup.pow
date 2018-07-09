@@ -22,8 +22,7 @@ Stages:
     generate saltstack execution script
     generate setup note
     add user
-    install SSH
-    setup SSH
+    setup SSH keys
     install saltstack
     copy saltstack files
     close all disks               (optional)
@@ -346,6 +345,13 @@ while true
     tell_press_enter
 
 echo "User :" $config["user_name"] "added"
+
+wait_and_clear 2
+
+echo "Setting up SSH keys"
+echo ""
+
+config["ssh_key_path"]=/home/${config["user_name"]}/.ssh/authorized_keys
 
 wait_and_clear 2
 
