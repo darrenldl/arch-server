@@ -281,7 +281,7 @@ config["sys_disk_size_GiB"]="$(math "config["sys_disk_size_MiB"] / 1024")"
 
 if [[ "${config["efi_mode"]}" == true ]]; then
   echo "Creating GPT partition table"
-  parted "${config["sys_disk"]}" mklabel gpt &>/dev/null
+  parted -s "${config["sys_disk"]}" mklabel gpt &>/dev/null
   echo "Calculating partition sizes"
   # use MiB for rough estimation
   # calculate % of 200 MiB size
@@ -299,14 +299,14 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   root_part_end_perc=100
   #
   echo "Partitioning"
-  parted -a optimal "${config["sys_disk"]}" mkpart primary fat32 \
+  parted -s -a optimal "${config["sys_disk"]}" mkpart primary fat32 \
   "$esp_part_beg_perc%"  "$esp_part_end_perc%"  &>/dev/null
-  parted -a optimal "${config["sys_disk"]}" mkpart primary       \
+  parted -s -a optimal "${config["sys_disk"]}" mkpart primary       \
   "$boot_part_beg_perc%" "$boot_part_end_perc%" &>/dev/null
-  parted -a optimal "${config["sys_disk"]}" mkpart primary       \
+  parted -s -a optimal "${config["sys_disk"]}" mkpart primary       \
   "$root_part_beg_perc%" "$root_part_end_perc%" &>/dev/null
   #
-  parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
+  parted -s "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
   config["sys_part_esp"]="${config["sys_disk"]}"1
   config["sys_part_boot"]="${config["sys_disk"]}"2
@@ -318,7 +318,7 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   config["sys_part_esp_uuid"]="$(blkid "${config["sys_disk_esp"]}" | sed -n "s@\(.*\)UUID="\(.*\)" TYPE\(.*\)@\2@p")"
 else
   echo "Creating MBR partition table"
-  parted "${config["sys_disk"]}" mklabel msdos &>/dev/null
+  parted -s "${config["sys_disk"]}" mklabel msdos &>/dev/null
   #
   echo "Partitioning"
   boot_part_size=200
@@ -329,12 +329,12 @@ else
   root_part_beg_perc="$boot_part_end_perc"
   root_part_end_perc=100
   #
-  parted -a optimal "${config["sys_disk"]}" mkpart primary \
+  parted -s -a optimal "${config["sys_disk"]}" mkpart primary \
   "$boot_part_beg_perc%" "$boot_part_end_perc%" &>/dev/null
-  parted -a optimal "${config["sys_disk"]}" mkpart primary \
+  parted -s -a optimal "${config["sys_disk"]}" mkpart primary \
   "$root_part_beg_perc%" "$root_part_end_perc%" &>/dev/null
   #
-  parted "${config["sys_disk"]}" set 1 boot on &>/dev/null
+  parted -s "${config["sys_disk"]}" set 1 boot on &>/dev/null
   #
   config["sys_part_boot"]="${config["sys_disk"]}"1
   config["sys_part_root"]="${config["sys_disk"]}"2
@@ -345,7 +345,7 @@ wait_and_clear 2
 config["mount_path"]="/mnt"
 
 echo "Formatting root partition"
-mkfs.ext4 "${config["sys_part_root"]}"
+mkfs.ext4 -F "${config["sys_part_root"]}"
 
 wait_and_clear 2
 
@@ -358,7 +358,7 @@ mkdir "${config["mount_path"]}"/boot
 wait_and_clear 2
 
 echo "Formatting boot partition"
-mkfs.ext4 "${config["sys_part_boot"]}"
+mkfs.ext4 -F "${config["sys_part_boot"]}"
 
 wait_and_clear 2
 
