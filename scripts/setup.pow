@@ -237,4 +237,63 @@ arch-chroot $config["mount_path"] locale-gen
 
 wait_and_clear 2
 
+# Update database
+while true
+  echo "Updating package database"
+  arch-chroot $config["mount_path"] pacman --noconfirm -Sy
+  if $? == 0
+    break
+  else
+    :
+
+# Install prerequisites for wifi-menu
+while true
+  echo "Installing prerequisites for wifi-menu"
+  arch-chroot "$mount_path" pacman --noconfirm -S dialog wpa_supplicant
+  if $? == 0
+    break
+  else
+    :
+
+clear
+
+while true
+  echo "Setting root password"
+  arch-chroot $config["mount_path"] passwd
+  if $? == 0
+    break
+  else
+    :
+
+clear
+
+# Setup GRUB
+install_with_retries "grub"
+
+if ${config["efi_mode"]} == true
+  install_with_retries "efibootmgr"
+  install_with_retries "efitools"
+
+clear
+
+# Install grub and required files
+echo "Install grub onto system disk"
+if ${config["efi_mode"]} == true
+  echo "Reset ESP directory"
+  rm -rf $config["mount_path"]/boot/efi
+  mkdir -p $config["mount_path"]/boot/efi
+  #
+  echo "Mounting ESP partition"
+  mount ${config["sys_part_esp"]} ${config["mount_path"]}/boot/efi
+  #
+  arch-chroot $config["mount_path"] grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
+else
+  arch-chroot ${config["mount_path"]} grub-install --target=i386-pc --boot-directory=/boot ${config["sys_disk"]}
+
+echo "Generating grub configuration file"
+arch-chroot $config["mount_path"] grub-mkconfig -o /boot/grub/grub.cfg
+
+wait_and_clear 2
+
+echo "Below is the configuration recorded"
 print_map config
