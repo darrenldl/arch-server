@@ -573,10 +573,10 @@ while true; do
     #
     ask_end=false
     while [[ "$ask_end" == false ]]; do
-      ask_yn file_match "Does the hash match the hash of the original file?"
+      ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
     done
-    if [[ "$file_"=~ == true ]]; then
+    if [[ "$file_correct" == true ]]; then
       break
     else
       :

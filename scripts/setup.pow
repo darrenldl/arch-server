@@ -396,9 +396,9 @@ while true
     #
     ask_end=false
     while $ask_end == false
-      ask_yn file_match "Does the hash match the hash of the original file?"
+      ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
-    if $file_match == true
+    if $file_correct == true
       break
     else
       :

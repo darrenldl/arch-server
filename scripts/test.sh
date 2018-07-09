@@ -174,9 +174,9 @@ while true; do
   pass="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
   #
   echo "Transfer the PUBLIC key to the server using one of the following commands"
-  echo "cat PUBKEY | gpg -c | nc ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
+  echo "cat PUBKEY | gpg -c | ncat ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
   echo "or"
-  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | nc ${config["ip_addr"]} ${config["port"]}"
+  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | ncat ${config["ip_addr"]} ${config["port"]}"
   #
   ncat -lp "${config["port"]}" > pub_key.gpg
   echo "File received"
@@ -189,10 +189,10 @@ while true; do
     #
     ask_end=false
     while [[ "$ask_end" == false ]]; do
-      ask_yn file_match "Does the hash match the hash of the original file?"
+      ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
     done
-    if [[ "$file_"=~ == true ]]; then
+    if [[ "$file_correct" == true ]]; then
       break
     else
       :
