@@ -53,7 +53,7 @@ tell_press_enter()
   echo "Press enter to continue"
   read
 
-install_with_retries(config, package_name)
+install_with_retries(package_name)
   if $# == 0
     echo "Too few parameters"
     exit

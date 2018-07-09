@@ -134,8 +134,7 @@ tell_press_enter(){
 }
 
 install_with_retries(){
-  local config="${1}"
-  local package_name="${2}"
+  local package_name="${1}"
   if [[ $# == 0 ]]; then
     echo "Too few parameters"
     exit
@@ -436,11 +435,11 @@ done
 
 clear
 
-install_with_retries config "grub"
+install_with_retries "grub"
 
 if [[ "${config["efi_mode"]}" == true ]]; then
-  install_with_retries config "efibootmgr"
-  install_with_retries config "efitools"
+  install_with_retries "efibootmgr"
+  install_with_retries "efitools"
 fi
 
 clear
@@ -531,7 +530,7 @@ chmod u=rx "${config["salt_exec_script_path"]}"
 chmod g=rx "${config["salt_exec_script_path"]}"
 chmod o=   "${config["salt_exec_script_path"]}"
 
-install_with_retries config "salt"
+install_with_retries "salt"
 
 wait_and_clear 2
 

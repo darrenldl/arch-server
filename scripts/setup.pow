@@ -267,11 +267,11 @@ while true
 clear
 
 # Setup GRUB
-install_with_retries config "grub"
+install_with_retries "grub"
 
 if ${config["efi_mode"]} == true
-  install_with_retries config "efibootmgr"
-  install_with_retries config "efitools"
+  install_with_retries "efibootmgr"
+  install_with_retries "efitools"
 
 clear
 
@@ -360,7 +360,7 @@ chmod g=rx $config["salt_exec_script_path"]
 chmod o=   $config["salt_exec_script_path"]
 
 # Install saltstack
-install_with_retries config "salt"
+install_with_retries "salt"
 
 wait_and_clear 2
 
