@@ -1,45 +1,11 @@
 #!/usr/bin/env powscript
 require 'utils.pow'
 
-set +e
+
+x=1
 
 config={}
+
 config["a"]=4
 
-print_config()
-  echo ${config["a"]}
 
-echo $(div_rup config["a"] 3)
-print_config
-
-config["ip_addr"]=$(ip route get 8.8.8.8 | awk $awk_cmd)
-config["port"]=40001
-
-while true
-  pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
-  #
-  echo "Transfer the PUBLIC key to the server using one of the following commands"
-  echo "cat PUBKEY | gpg -c | ncat ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
-  echo "or"
-  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | ncat ${config["ip_addr"]} ${config["port"]}"
-  #
-  ncat -lp $config["port"] > pub_key.gpg
-  echo "File received"
-  echo "Decrypting file"
-  echo "=========="
-  gpg --batch --yes --passphrase $pass -o pub_key --decrypt pub_key.gpg
-  ret=$?
-  echo "=========="
-  if $ret == 0
-    echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
-    #
-    ask_end=false
-    while $ask_end == false
-      ask_yn file_correct "Does the hash match the hash of the original file?"
-      ask_if_correct ask_end
-    if $file_correct == true
-      break
-    else
-      :
-  else
-    echo "Decryption failed"
