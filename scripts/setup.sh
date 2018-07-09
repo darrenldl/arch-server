@@ -554,8 +554,7 @@ awk_cmd="{print ""\$(NF-2)"";exit}"
 config["ip_addr"]="$(ip route get 8.8.8.8 | awk "$awk_cmd")"
 config["port"]=40001
 
-end=false
-while [[ "$end" == false ]]; do
+while true; do
   pass="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
   #
   echo "Transfer the PUBLIC key to the server using one of the following commands"
