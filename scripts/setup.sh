@@ -60,7 +60,7 @@ INVALID_ANS="Invalid answer"
 print_kv(){
   local k="${1}"
   local v="${2}"
-  echo "$k" -> "$v"
+  echo "$k" "->" "$v"
 }
 
 print_map(){
@@ -378,6 +378,30 @@ while true; do
 done
 
 clear
+
+echo "Generating fstab"
+mkdir "${config["mount_path"]}"/etc
+genfstab -U "${config["mount_path"]}" >> "${config["mount_path"]}"/etc/fstab
+
+wait_and_clear 2
+
+end=false
+while [[ "$end" == false ]]; do
+  ask_ans config["host_name"] "Please enter hostname"
+  echo "You entered : " "${config["host_name"]}"
+  ask_if_correct end
+done
+
+echo "${config["host_name"]}" > "${config["mount_path"]}"/etc/hostname
+
+wait_and_clear 2
+
+echo "Setting locale"
+sed -i "s@#en_US.UTF-8 UTF-8@en_US.UTF-8 UTF-8@g" "${config["mount_path"]}"/etc/locale.gen
+echo "LANG=en_US.UTF-8" > "${config["mount_path"]}"/etc/locale.conf
+arch-chroot "${config["mount_path"]}" locale-gen
+
+wait_and_clear 2
 
 print_map config
 
