@@ -348,7 +348,7 @@ echo "Formatting root partition"
 mkfs.ext4 "${config["sys_part_root"]}"
 
 echo "Mounting system partition"
-mount "${config["sys_part_root"]}"
+mount "${config["sys_part_root"]}" "${config["mount_path"]}"
 
 echo "Creating boot directory"
 mkdir "${config["mount_path"]}"/boot
@@ -361,7 +361,7 @@ mkfs.ext4 "${config["sys_part_boot"]}"
 wait_and_clear 2
 
 echo "Mounting boot partition"
-mount "${config["sys_part_boot"]}"/boot
+mount "${config["sys_part_boot"]}" "${config["mount_path"]}"/boot
 
 wait_and_clear 2
 
