@@ -155,6 +155,8 @@ install_with_retries(){
 }
 
 
+set +e
+
 declare -A config
 config["a"]=4
 
@@ -173,23 +175,23 @@ while [[ "$end" == false ]]; do
   pass="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
   #
   echo "Transfer the PUBLIC key to the server using one of the following commands"
-  echo "openssl enc -aes-256-cbc -salt -a -e -in PUBKEY | ncat ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
+  echo "cat PUBKEY | gpg -c | nc ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
   echo "or"
-  echo "openssl enc -aes-256-cbc -salt -a -e -pass pass:$pass -in PUBKEY | ncat ${config["ip_addr"]} ${config["port"]}"
+  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | nc ${config["ip_addr"]} ${config["port"]}"
   #
-  ncat -lp "${config["port"]}" > pub_key.enc
+  ncat -lp "${config["port"]}" > pub_key.gpg
   echo "File received"
-  # echo "Decrypting file"
-  openssl enc -aes-256-cbc  -salt -a -d -pass pass:"$pass" -in pub_key.enc -out pub_key
+  echo "Decrypting file"
+  gpg --batch --yes --passphrase "$pass" --decrypt pub_key.gpg -o pub_key
   if [[ $? == 0 ]]; then
     echo "SHA256 hash of decrypted file :" "$(sha256sum pub_key)"
     #
     ask_end=false
     while [[ "$ask_end" == false ]]; do
-      ask_ans match "Does the hash match the hash of the original file?"
+      ask_if_correct file_match "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
     done
-    if [[ $=~ == true ]]; then
+    if [[ "$file_"=~ == true ]]; then
       break
     else
       :
