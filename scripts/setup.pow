@@ -182,6 +182,8 @@ config["mount_path"]="/mnt"
 echo "Formatting root partition"
 mkfs.ext4 $config["sys_part_root"]
 
+wait_and_clear 2
+
 echo "Mounting system partition"
 mount ${config["sys_part_root"]} ${config["mount_path"]}
 
