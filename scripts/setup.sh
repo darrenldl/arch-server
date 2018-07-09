@@ -266,10 +266,10 @@ dd if=/dev/zero of="${config["sys_disk"]}" bs=512 count=2 &>/dev/null
 
 wait_and_clear 2
 
-config["sys_disk_size_bytes"]="$(fdisk -l config["sys_disk"] | head -n 1 | sed "s|.*, \(.*\) bytes.*||")"
-config["sys_disk_size_KiB"]="$( math "${config["sys_disk_size_bytes"]} / 1024" )"
-config["sys_disk_size_MiB"]="$( math "${config["sys_disk_size_KiB"]} / 1024" )"
-config["sys_disk_size_GiB"]="$( math "${config["sys_disk_size_MiB"]} / 1024" )"
+config["sys_disk_size_bytes"]="$(fdisk -l config['sys_disk'] | head -n 1 | sed "s|.*, \(.*\) bytes.*||")"
+config["sys_disk_size_KiB"]="$( math "${config['sys_disk_size_bytes']} / 1024" )"
+config["sys_disk_size_MiB"]="$( math "${config['sys_disk_size_KiB']} / 1024" )"
+config["sys_disk_size_GiB"]="$( math "${config['sys_disk_size_MiB']} / 1024" )"
 
 if [[ "${config["efi_mode"]}" == true ]]; then
   echo "Creating GPT partition table"
@@ -278,12 +278,12 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   # use MiB for rough estimation
   # calculate % of 200 MiB size
   esp_part_size=200
-  esp_part_perc="$(math "($esp_part_size * 100)"" / "${config["sys_disk_size_MiB"]}"" )
+  esp_part_perc="$(math "($esp_part_size * 100)"" / "${config['sys_disk_size_MiB']}"" )
   esp_part_beg_perc=0
   esp_part_end_perc="$esp_part_perc"
   #
   boot_part_size=200
-  boot_part_perc="$(math "($esp_part_end_perc * 100)"" / "${config["sys_disk_size_MiB"]}"" )
+  boot_part_perc="$(math "($esp_part_end_perc * 100)"" / "${config['sys_disk_size_MiB']}"" )
   boot_part_beg_perc="$esp_part_end_perc"
   boot_part_end_perc="$(math "$boot_part_beg_perc + $boot_part_perc")"
   #
@@ -306,7 +306,7 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   echo "Formatting ESP partition"
   mkfs.fat -F32 "${config["sys_disk_esp"]}"
   #
-  config["sys_disk_esp_uuid"]="$(blkid "${config["sys_disk_esp"]}" | sed -n "s@\(.*\)UUID="\(.*\)" TYPE\(.*\)@@p")"
+  config["sys_disk_esp_uuid"]="$(blkid "${config['sys_disk_esp']}" | sed -n "s@\(.*\)UUID="\(.*\)" TYPE\(.*\)@@p")"
   config["sys_disk_boot"]}"2
 else
   echo "Creating MBR partition table"
@@ -314,7 +314,7 @@ else
   #
   echo "Partitioning"
   boot_part_size=200
-  boot_part_perc="$( math "($esp_part_end_perc * 100)"" / "${config["sys_disk_size_MiB"]}"" )
+  boot_part_perc="$( math "($esp_part_end_perc * 100)"" / "${config['sys_disk_size_MiB']}"" )
   boot_part_beg_perc=0
   boot_part_end_perc="$boot_part_perc"
   #
