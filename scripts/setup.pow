@@ -362,6 +362,12 @@ cp ../saltstack/sshd_config /mnt/etc/ssh/
 
 wait_and_clear 2
 
+echo "Enabling SSH server"
+
+arch-chroot $config["mount_path"] systemctl enable sshd
+
+wait_and_clear 2
+
 echo "Setting up SSH keys"
 
 config["ssh_key_path"]=/home/${config["user_name"]}/.ssh/authorized_keys
