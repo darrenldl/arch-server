@@ -307,8 +307,7 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   echo "Formatting ESP partition"
   mkfs.fat -F32 "${config["sys_disk_esp"]}"
   #
-  config["sys_disk_esp_uuid"]="$(blkid "${config['sys_disk_esp']}" | sed -n "s@\(.*\)UUID="\(.*\)" TYPE\(.*\)@\2@p")"
-  config["sys_disk_boot"]}"2
+  config["sys_part_esp_uuid"]="$(blkid "${config['sys_disk_esp']}" | sed -n "s@\(.*\)UUID="\(.*\)" TYPE\(.*\)@\2@p")"
 else
   echo "Creating MBR partition table"
   parted "${config["sys_disk"]}" mklabel msdos &>/dev/null
