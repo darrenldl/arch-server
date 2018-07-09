@@ -1,0 +1,7 @@
+#!/usr/bin/env powscript
+config={}
+
+config["a"]=1
+config["b"]=$(math "${config["a"]} / 1024")
+
+echo $config["b"]
