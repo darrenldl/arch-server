@@ -567,8 +567,9 @@ while true; do
   echo "Decrypting file"
   echo "=========="
   gpg --batch --yes --passphrase "$pass" -o pub_key --decrypt pub_key.gpg
+  ret=$?
   echo "=========="
-  if [[ $? == 0 ]]; then
+  if [[ "$ret" == 0 ]]; then
     echo "SHA256 hash of decrypted file :" "$(sha256sum pub_key)"
     #
     ask_end=false
