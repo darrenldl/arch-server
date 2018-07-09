@@ -53,7 +53,7 @@ tell_press_enter()
   echo "Press enter to continue"
   read
 
-install_with_retries(package_name, mount_path)
+install_with_retries(config, package_name)
   if $# == 0
     echo "Too few parameters"
     exit
@@ -61,7 +61,7 @@ install_with_retries(package_name, mount_path)
   retries_left=$retries
   while true
     echo "Installing ""$package_name"" package"
-    arch-chroot "$mount_path" pacman --noconfirm -S $package_name
+    arch-chroot ${config["mount_path"]} pacman --noconfirm -S $package_name
     if $? == 0
       break
     else

@@ -134,8 +134,8 @@ tell_press_enter(){
 }
 
 install_with_retries(){
-  local package_name="${1}"
-  local mount_path="${2}"
+  local config="${1}"
+  local package_name="${2}"
   if [[ $# == 0 ]]; then
     echo "Too few parameters"
     exit
@@ -144,7 +144,7 @@ install_with_retries(){
   retries_left="$retries"
   while true; do
     echo "Installing ""$package_name"" package"
-    arch-chroot "$mount_path" pacman --noconfirm -S "$package_name"
+    arch-chroot "${config["mount_path"]}" pacman --noconfirm -S "$package_name"
     if [[ $? == 0 ]]; then
       break
     else
@@ -436,11 +436,11 @@ done
 
 clear
 
-install_with_retries "grub"
+install_with_retries config "grub"
 
 if [[ "${config["efi_mode"]}" == true ]]; then
-  install_with_retries "efibootmgr"
-  install_with_retries "efitools"
+  install_with_retries config "efibootmgr"
+  install_with_retries config "efitools"
 fi
 
 clear
@@ -531,7 +531,7 @@ chmod u=rx "${config["salt_exec_script_path"]}"
 chmod g=rx "${config["salt_exec_script_path"]}"
 chmod o=   "${config["salt_exec_script_path"]}"
 
-install_with_retries "salt"
+install_with_retries config "salt"
 
 wait_and_clear 2
 
