@@ -148,7 +148,7 @@ if ${config["efi_mode"]} == true
   echo "Formatting ESP partition"
   mkfs.fat -F32 $config["sys_disk_esp"]
   #
-  config["sys_disk_esp_uuid"]=$(blkid $config["sys_disk_esp"] | sed -n "s@\(.*\)UUID=\"\(.*\)\" TYPE\(.*\)@\2@p")
+  config["sys_disk_esp_uuid"]=$(blkid ${config["sys_disk_esp"]} | sed -n "s@\(.*\)UUID=\"\(.*\)\" TYPE\(.*\)@\2@p")
   config["sys_disk_boot"]=$config["sys_disk"]2
 else
   echo "Creating MBR partition table"
@@ -156,7 +156,7 @@ else
   #
   echo "Partitioning"
   boot_part_size=200
-  boot_part_perc=$( math "($esp_part_end_perc * 100) / $config["sys_disk_size_MiB"]" )
+  boot_part_perc=$( math "($esp_part_end_perc * 100) / ${config["sys_disk_size_MiB"]}" )
   boot_part_beg_perc=0
   boot_part_end_perc=$boot_part_perc
   #
