@@ -7,32 +7,29 @@ set +e
 NO_COMMAND="Command not found"
 
 # Show stages
-cat <<STAGEEOF
-Stages:
-    update time
-    choose editor
-    configure mirrorlist
-    choose system disk
-    setup partitions
-    set hostname
-    set locale
-    update package database
-    install system
-    setup GRUB
-    setup GRUB config
-    intall GRUB
-    generate saltstack execution script
-    generate setup note
-    add user
-    install SSH
-    setup SSH server
-    setup SSH keys
-    install saltstack
-    copy saltstack files
-    close all disks                     (optional)
-    restart                             (optional)
-
-STAGEEOF
+echo "Stages:"
+echo "    update time"
+echo "    choose editor"
+echo "    configure mirrorlist"
+echo "    choose system disk"
+echo "    setup partitions"
+echo "    set hostname"
+echo "    set locale"
+echo "    update package database"
+echo "    install system"
+echo "    setup GRUB"
+echo "    setup GRUB config"
+echo "    intall GRUB"
+echo "    generate saltstack execution script"
+echo "    generate setup note"
+echo "    add user"
+echo "    install SSH"
+echo "    setup SSH server"
+echo "    setup SSH keys"
+echo "    install saltstack"
+echo "    copy saltstack files"
+echo "    close all disks                     (optional)"
+echo "    restart                             (optional)"
 
 tell_press_enter
 clear
