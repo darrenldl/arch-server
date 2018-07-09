@@ -5,3 +5,4 @@ base:
     - firewall
     - harden
     - system
+    - ssh

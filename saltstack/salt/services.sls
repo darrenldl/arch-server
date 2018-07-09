@@ -15,3 +15,9 @@ Make sure vnStat is enabled:
     - name : vnstat
     - require :
       - Network statistics
+
+Make sure sshd is enabled:
+  service.enabled:
+    - name : sshd
+    - require :
+      - SSH

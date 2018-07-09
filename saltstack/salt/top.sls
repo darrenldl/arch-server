@@ -12,4 +12,5 @@ base:
     - sectools
     - services
     - system
+    - ssh
     - usergroups
