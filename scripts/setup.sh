@@ -286,12 +286,12 @@ if [[ "${config["efi_mode"]}" == true ]]; then
   # use MiB for rough estimation
   # calculate % of 200 MiB size
   esp_part_size=200
-  esp_part_perc="$(math "(esp_part_size * 100) / config["sys_disk_size_MiB"]")"
+  esp_part_perc="$(div_rup "(esp_part_size * 100)" config["sys_disk_size_MiB"])"
   esp_part_beg_perc=0
   esp_part_end_perc="$esp_part_perc"
   #
   boot_part_size=200
-  boot_part_perc="$(math "(esp_part_end_perc * 100) / config["sys_disk_size_MiB"]")"
+  boot_part_perc="$(div_rup "(esp_part_end_perc * 100)" config["sys_disk_size_MiB"])"
   boot_part_beg_perc="$esp_part_end_perc"
   boot_part_end_perc="$(math "boot_part_beg_perc + boot_part_perc")"
   #
