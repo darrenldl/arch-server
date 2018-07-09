@@ -121,12 +121,12 @@ if ${config["efi_mode"]} == true
   # use MiB for rough estimation
   # calculate % of 200 MiB size
   esp_part_size=200
-  esp_part_perc=$(math "($esp_part_size * 100) / ${config['sys_disk_size_MiB']}" )
+  esp_part_perc=$(math "($esp_part_size * 100) / ${config['sys_disk_size_MiB']}")
   esp_part_beg_perc=0
   esp_part_end_perc=$esp_part_perc
   #
   boot_part_size=200
-  boot_part_perc=$(math "($esp_part_end_perc * 100) / ${config['sys_disk_size_MiB']}" )
+  boot_part_perc=$(math "($esp_part_end_perc * 100) / ${config['sys_disk_size_MiB']}")
   boot_part_beg_perc=$esp_part_end_perc
   boot_part_end_perc=$(math "$boot_part_beg_perc + $boot_part_perc")
   #
@@ -150,14 +150,14 @@ if ${config["efi_mode"]} == true
   echo "Formatting ESP partition"
   mkfs.fat -F32 $config["sys_disk_esp"]
   #
-  config["sys_part_esp_uuid"]=$(blkid ${config['sys_disk_esp']} | sed -n "s@\(.*\)UUID=\"\(.*\)\" TYPE\(.*\)@\\2@p")
+  config["sys_part_esp_uuid"]=$(blkid ${config["sys_disk_esp"]} | sed -n "s@\(.*\)UUID=\"\(.*\)\" TYPE\(.*\)@\\2@p")
 else
   echo "Creating MBR partition table"
   parted $config["sys_disk"] mklabel msdos &>/dev/null
   #
   echo "Partitioning"
   boot_part_size=200
-  boot_part_perc=$( math "($boot_part_size * 100) / ${config['sys_disk_size_MiB']}" )
+  boot_part_perc=$(math "($boot_part_size * 100) / ${config["sys_disk_size_MiB"]}")
   boot_part_beg_perc=0
   boot_part_end_perc=$boot_part_perc
   #
