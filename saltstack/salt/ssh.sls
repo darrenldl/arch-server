@@ -3,5 +3,5 @@ Deploy sshd_config:
     - name: {{ pillar['ssh']['sshd_config_path'] }}
     - source: salt://sshd_config
     - replace: True
-      - require:
-        - Make sure sshd is enabled
+    - require:
+      - Make sure sshd is enabled
