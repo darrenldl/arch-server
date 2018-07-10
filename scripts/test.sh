@@ -376,7 +376,7 @@ install_with_retries() {
 local package_name;
 [ $# -ge 1 ] && package_name="${1}"
 }
-if empty "${1}"; then
+if [ $# = 0 ]; then
 echo 'Too few parameters'
 exit
 fi
