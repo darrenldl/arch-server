@@ -6,12 +6,6 @@ System hardening:
       - pax-utils
       - paxtest
 
-Secure chat:
-  pkg.installed:
-    - pkgs:
-      # Tox chat
-      - qtox
-
 Vulnerability scan/management:
   pkg.installed:
     - pkgs:
@@ -25,7 +19,6 @@ Intrusion detection:
 Anti-infoleak/privacy:
   pkg.installed:
     - pkgs:
-      - bleachbit
       - perl-image-exiftool
 
 Sandboxing:
@@ -46,17 +39,6 @@ Cryptographic:
       - gnupg
       - gpa
       - veracrypt
-
-Password management:
-  pkg.installed:
-    - pkgs:
-      # - keepassx2
-      - keepass
-
-Keyring:
-  pkg.installed:
-    - pkgs:
-      - gnome-keyring
 
 Anti-malware:
   pkg.installed:

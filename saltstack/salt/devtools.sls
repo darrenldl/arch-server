@@ -1,24 +1,7 @@
 General Development Tools:
   pkg.installed:
     - pkgs:
-      - meld
       - git
-
-Hex editor:
-  pkg.installed:
-    - pkgs:
-      - okteta
-
-IDE:
-  pkg.installed:
-    - pkgs:
-      - eric          # for Python and Ruby
-      - codeblocks    # for C/C++
-
-GUI Framework/Libraries:
-  pkg.installed:
-    - pkgs:
-      - qt5
 
 C/C++:
   pkg.installed:
@@ -35,7 +18,6 @@ Go:
 Java:
   pkg.installed:
     - pkgs:
-      - intellij-idea-community-edition
       - jdk8-openjdk
       - jre8-openjdk
 
@@ -70,11 +52,6 @@ R:
   pkg.installed:
     - pkgs:
       - r
-
-SQL:
-  pkg.installed:
-    - pkgs:
-      - sqlitebrowser
 
 Haxe:
   pkg.installed:

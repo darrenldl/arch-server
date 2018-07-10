@@ -18,13 +18,6 @@ Network sniffing:
     - pkgs:
       - wireshark-cli
       - tcpdump
-      # - ettercap
-      - ettercap-gtk
-
-Network analysis:
-  pkg.installed:
-    - pkgs:
-      - etherape
 
 Wireless tools:
   pkg.installed:
