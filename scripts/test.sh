@@ -288,6 +288,15 @@ echo $#
 f
 f 'a'
 
+declare -A config 
+config['a']=1 
+
+echo "${config['a']}"
+
+if [ -b "${config['a']}" ]; then
+echo 'Test'
+fi
+
 
 
 if [ "${ASYNC}" = 1 ]; then

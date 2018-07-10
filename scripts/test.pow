@@ -6,3 +6,11 @@ f()
 
 f
 f "a"
+
+config={}
+config["a"]=1
+
+echo $config["a"]
+
+if -b $config["a"]
+  echo "Test"

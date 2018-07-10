@@ -485,14 +485,14 @@ done
 clear
 
 
-echo 'Choose system partition'
+echo 'Choose system disk'
 echo ''
 
 end=false 
 while ! "${end}"; do
 ask_ans config['sys_disk'] 'Please specify the system disk'
 if [ -b "${config['sys_disk']}" ]; then
-echo 'System parition picked :' ''"${config}"'['sys_disk']'
+echo 'System parition picked :' "${config['sys_disk']}"
 ask_if_correct end
 else
 echo 'Disk does not exist'
