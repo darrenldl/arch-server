@@ -46,7 +46,7 @@ tell_press_enter()
   read
 
 install_with_retries(package_name)
-  if empty $1
+  if $# = 0
     echo "Too few parameters"
     exit
   retries=5
