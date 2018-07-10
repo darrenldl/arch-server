@@ -813,6 +813,7 @@ echo 'Decryption failed'
 fi
 rm -f pub_key.gpg
 rm -f pub_key
+clear
 done
 
 clear
@@ -875,7 +876,7 @@ tell_press_enter
 
 end=false 
 while ! "${end}"; do
-ask_yn close_disks 'Do you want to close the disks and USB key?'
+ask_yn close_disks 'Do you want to close the partitions?'
 ask_if_correct end
 done
 
@@ -897,7 +898,7 @@ else
 :
 fi
 else
-echo 'No shutting down will be done by the script since the disks are not closed'
+echo 'No shutting down will be done by the script since the partitions are not closed'
 wait_and_clear 2
 fi
 
