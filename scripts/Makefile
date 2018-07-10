@@ -7,3 +7,7 @@ setup :
 test :
 	powscript --compile test.pow > test.sh
 	chmod u+x test.sh
+
+utils :
+	powscript --compile utils.pow > utils.sh
+	chmod u+x utils.sh
