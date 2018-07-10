@@ -705,18 +705,18 @@ mkdir -p "${config['lssh_dir_path']}"
 
 echo 'Copying useradd helper scripts'
 config['useradd_helper1_name']='useradd_helper_as_powerful.sh' 
-config['useradd_helper1_path']="${config['llsh_dir_path']}"/"${config['useradd_helper1_name']}" 
+config['useradd_helper1_path']="${config['lssh_dir_path']}"/"${config['useradd_helper1_name']}" 
 cp "${config['useradd_helper1_name']}" "${config['useradd_helper1_path']}"
 chmod u=rx "${config['useradd_helper1_path']}"
 chmod g=rx "${config['useradd_helper1_path']}"
-chmod o="${config['useradd_helper1_path']}"
+chmod o='' "${config['useradd_helper1_path']}"
 
 config['useradd_helper2_name']='useradd_helper_restricted.sh' 
-config['useradd_helper2_path']="${config['llsh_dir_path']}"/"${config['useradd_helper2_name']}" 
+config['useradd_helper2_path']="${config['lssh_dir_path']}"/"${config['useradd_helper2_name']}" 
 cp "${config['useradd_helper2_name']}" "${config['useradd_helper2_path']}"
 chmod u=rx "${config['useradd_helper2_path']}"
 chmod g=rx "${config['useradd_helper2_path']}"
-chmod o="${config['useradd_helper2_path']}"
+chmod o='' "${config['useradd_helper2_path']}"
 
 echo 'User setup'
 echo ''
