@@ -19,7 +19,6 @@ Disk usage monitoring:
   pkg.installed:
     - pkgs:
       - ncdu
-      - filelight
 
 CPU limiting:
   pkg.installed:
@@ -31,7 +30,6 @@ System info:
     - pkgs:
       - hwdetect
       - lshw
-      - hardinfo
 
 Log cleaning:
   pkg.installed:
@@ -64,7 +62,6 @@ Task management:
     - pkgs:
       - lsof
       - htop
-      - xfce4-taskmanager
 
 Mounting:
   pkg.installed:
@@ -95,12 +92,6 @@ Partitioning:
   pkg.installed:
     - pkgs:
       - parted
-      - gparted
-
-Remote desktop:
-  pkg.installed:
-    - pkgs:
-      - remmina
 
 Screen sessions:
   pkg.installed:
