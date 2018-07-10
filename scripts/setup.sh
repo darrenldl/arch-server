@@ -431,6 +431,7 @@ echo '    add user'
 echo '    install SSH'
 echo '    setup SSH server'
 echo '    setup SSH keys'
+echo '    enable DHCP'
 echo '    install saltstack'
 echo '    copy saltstack files'
 echo '    close all disks                     (optional)'
@@ -819,6 +820,12 @@ echo 'Installing SSH key to user :' "${config['user_name']}"
 
 cat pub_key > "${config['ssh_key_path']}"
 rm pub_key
+
+wait_and_clear 2
+
+echo 'Enabling dhcpcd'
+
+arch-chroot "${config['mount_path']}" systemctl enable dhcpcd
 
 wait_and_clear 2
 
