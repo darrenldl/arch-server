@@ -811,7 +811,7 @@ fi
 else
 echo ''
 echo 'Decryption failed'
-wait_and_clear 2
+tell_press_enter
 fi
 rm -f pub_key.gpg
 rm -f pub_key
