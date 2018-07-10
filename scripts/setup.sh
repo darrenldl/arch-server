@@ -523,7 +523,7 @@ config['sys_disk_size_KiB']=$(( ( "${config['sys_disk_size_bytes']}"/1024 ) ))
 config['sys_disk_size_MiB']=$(( ( "${config['sys_disk_size_KiB']}"/1024 ) )) 
 config['sys_disk_size_GiB']=$(( ( "${config['sys_disk_size_MiB']}"/1024 ) )) 
 
-if [ "${config['efi_mode']}" = true ]; then
+if "${config['efi_mode']}"; then
 echo 'Creating GPT partition table'
 parted -s "${config['sys_disk']}" mklabel gpt &>/dev/null
 echo 'Calculating partition sizes'
@@ -670,7 +670,7 @@ clear
 
 install_with_retries 'grub'
 
-if [ "${config['efi_mode']}" = true ]; then
+if "${config['efi_mode']}"; then
 install_with_retries 'efibootmgr'
 install_with_retries 'efitools'
 fi
@@ -679,7 +679,7 @@ clear
 
 
 echo 'Install grub onto system disk'
-if [ "${config['efi_mode']}" = true ]; then
+if "${config['efi_mode']}"; then
 echo 'Reset ESP directory'
 rm -rf "${config['mount_path']}"/boot/efi
 mkdir -p "${config['mount_path']}"/boot/efi
@@ -802,7 +802,7 @@ while ! "${ask_end}"; do
 ask_yn file_correct 'Does the hash match the hash of the original file?'
 ask_if_correct ask_end
 done
-if [ "${file_correct}" = true ]; then
+if "${file_correct}"; then
 break
 else
 :
@@ -870,9 +870,44 @@ ask_yn close_disks 'Do you want to close the disks and USB key?'
 ask_if_correct end
 done
 
-if [ "${close_disks}" = true ]; then
+if "${close_disks}"; then
 umount -R /mnt
 fi
 
 clear
+
+if "${close_disks}"; then
+end=false 
+while ! "${end}"; do
+ask_yn shutdown_system 'Do you want to shut down now?'
+ask_if_correct end
+done
+if "${shutdown_system}"; then
+poweroff
+else
+:
+fi
+else
+echo 'No shutting down will be done by the script since the disks are not closed'
+wait_and_clear 2
+fi
+
+cat <<ENDOFEXECEOF
+
+=============='='
+
+End of execution
+
+=============='='
+
+ENDOFEXECEOF
+
+
+
+if [ "${ASYNC}" = 1 ]; then
+wait
+fi
+
+
+
 

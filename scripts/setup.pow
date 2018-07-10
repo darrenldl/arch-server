@@ -113,7 +113,7 @@ config["sys_disk_size_KiB"]=$(math (${config["sys_disk_size_bytes"]} / 1024))
 config["sys_disk_size_MiB"]=$(math (${config["sys_disk_size_KiB"]} / 1024))
 config["sys_disk_size_GiB"]=$(math (${config["sys_disk_size_MiB"]} / 1024))
 
-if ${config["efi_mode"]} is true
+if ${config["efi_mode"]}
   echo "Creating GPT partition table"
   parted -s $config["sys_disk"] mklabel gpt &>/dev/null
   echo "Calculating partition sizes"
@@ -269,7 +269,7 @@ clear
 # Setup GRUB
 install_with_retries "grub"
 
-if ${config["efi_mode"]} is true
+if ${config["efi_mode"]}
   install_with_retries "efibootmgr"
   install_with_retries "efitools"
 
@@ -277,7 +277,7 @@ clear
 
 # Install grub and required files
 echo "Install grub onto system disk"
-if ${config["efi_mode"]} is true
+if ${config["efi_mode"]}
   echo "Reset ESP directory"
   rm -rf $config["mount_path"]/boot/efi
   mkdir -p $config["mount_path"]/boot/efi
@@ -399,7 +399,7 @@ while true
     while not $ask_end
       ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
-    if $file_correct is true
+    if $file_correct
       break
     else
       :
@@ -463,19 +463,21 @@ while not $end
   ask_yn close_disks "Do you want to close the disks and USB key?"
   ask_if_correct end
 
-if $close_disks is true
+if $close_disks
   umount -R /mnt
 
 clear
 
-if $close_disks is true
+if $close_disks
   # Shut down
   end=false
   while not $end
     ask_yn shutdown_system "Do you want to shut down now?"
     ask_if_correct end
-  if $shutdown_system is true
+  if $shutdown_system
     poweroff
+  else
+    :
 else
   echo "No shutting down will be done by the script since the disks are not closed"
   wait_and_clear 2
