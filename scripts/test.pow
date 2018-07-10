@@ -1,11 +1,7 @@
 #!/usr/bin/env powscript
 require 'utils.pow'
 
-
-x=1
-
-config={}
-
-config["a"]=4
-
-
+end=false
+while not $end
+  echo "Hello"
+  ask_yn end "End?"

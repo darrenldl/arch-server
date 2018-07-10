@@ -51,7 +51,7 @@ echo "Choose editor"
 echo ""
 
 end=false
-while $end == false
+while not $end
   ask_ans config["editor"] "Please specifiy an editor to use"
   if -x $(command -v ${config["editor"]})
     echo Editor selected : $config["editor"]
@@ -69,7 +69,7 @@ tell_press_enter
 
 mirrorlist_path="/etc/pacman.d/mirrorlist"
 end=false
-while $end == false
+while not $end
   $config["editor"] $mirrorlist_path
   clear
   ask_yn end "Finished editing"
@@ -81,7 +81,7 @@ echo "Choose system partition"
 echo ""
 
 end=false
-while $end == false
+while not $end
   ask_ans config["sys_disk"] "Please specify the system disk"
   if -b ${config["sys_disk"]}
     echo "System parition picked :" "$config["sys_disk"]"
@@ -113,7 +113,7 @@ config["sys_disk_size_KiB"]=$(math (${config["sys_disk_size_bytes"]} / 1024))
 config["sys_disk_size_MiB"]=$(math (${config["sys_disk_size_KiB"]} / 1024))
 config["sys_disk_size_GiB"]=$(math (${config["sys_disk_size_MiB"]} / 1024))
 
-if ${config["efi_mode"]} == true
+if ${config["efi_mode"]} is true
   echo "Creating GPT partition table"
   parted -s $config["sys_disk"] mklabel gpt &>/dev/null
   echo "Calculating partition sizes"
@@ -205,7 +205,7 @@ wait_and_clear 2
 while true
   echo "Installing base system(base base-devel)"
   pacstrap /mnt base base-devel
-  if $? == 0
+  if $? is 0
     break
   else
     :
@@ -220,7 +220,7 @@ wait_and_clear 2
 
 # Setup hostname
 end=false
-while $end == false
+while not $end
   ask_ans config["host_name"] "Please enter hostname"
   echo "You entered : " $config["host_name"]
   ask_if_correct end
@@ -240,7 +240,7 @@ wait_and_clear 2
 while true
   echo "Updating package database"
   arch-chroot $config["mount_path"] pacman --noconfirm -Sy
-  if $? == 0
+  if $? is 0
     break
   else
     :
@@ -249,7 +249,7 @@ while true
 while true
   echo "Installing prerequisites for wifi-menu"
   arch-chroot $config["mount_path"] pacman --noconfirm -S dialog wpa_supplicant
-  if $? == 0
+  if $? is 0
     break
   else
     :
@@ -259,7 +259,7 @@ clear
 while true
   echo "Setting root password"
   arch-chroot $config["mount_path"] passwd
-  if $? == 0
+  if $? is 0
     break
   else
     :
@@ -269,7 +269,7 @@ clear
 # Setup GRUB
 install_with_retries "grub"
 
-if ${config["efi_mode"]} == true
+if ${config["efi_mode"]} is true
   install_with_retries "efibootmgr"
   install_with_retries "efitools"
 
@@ -277,7 +277,7 @@ clear
 
 # Install grub and required files
 echo "Install grub onto system disk"
-if ${config["efi_mode"]} == true
+if ${config["efi_mode"]} is true
   echo "Reset ESP directory"
   rm -rf $config["mount_path"]/boot/efi
   mkdir -p $config["mount_path"]/boot/efi
@@ -304,14 +304,14 @@ mkdir -p $config["lssh_dir_path"]
 echo "Copying useradd helper scripts"
 config["useradd_helper1_name"]="useradd_helper_as_powerful.sh"
 config["useradd_helper1_path"]=${config["llsh_dir_path"]}/${config["useradd_helper1_name"]}
-cp $selfpath/${config["useradd_helper1_name"]} ${config["useradd_helper1_path"]}
+cp ${config["useradd_helper1_name"]} ${config["useradd_helper1_path"]}
 chmod u=rx $config["useradd_helper1_path"]
 chmod g=rx $config["useradd_helper1_path"]
 chmod o=   $config["useradd_helper1_path"]
 
 config["useradd_helper2_name"]="useradd_helper_restricted.sh"
 config["useradd_helper2_path"]=${config["llsh_dir_path"]}/${config["useradd_helper2_name"]}
-cp $selfpath/${config["useradd_helper2_name"]} ${config["useradd_helper2_path"]}
+cp ${config["useradd_helper2_name"]} ${config["useradd_helper2_path"]}
 chmod u=rx $config["useradd_helper2_path"]
 chmod g=rx $config["useradd_helper2_path"]
 chmod o=   $config["useradd_helper2_path"]
@@ -321,14 +321,14 @@ echo ""
 
 while true
   ask_end=false
-  while $ask_end == false
+  while not $ask_end
     ask_ans config["user_name"] "Please enter the main user name(this will be used for SSH access)"
     echo "You entered : " $config["user_name"]
     ask_if_correct ask_end
   #
   echo "Adding user"
   arch-chroot ${config["mount_path"]} useradd -m ${config["user_name"]} -G users,wheel,rfkill
-  if $? == 0
+  if $? is 0
     break
   else
     echo "Failed to add user"
@@ -338,7 +338,7 @@ while true
 while true
   echo "Setting password for user :" $config["user_name"]
   arch-chroot ${config["mount_path"]} passwd ${config["user_name"]}
-  if $? == 0
+  if $? is 0
     break
   else
     echo "Failed to set password"
@@ -392,14 +392,14 @@ while true
   gpg --batch --yes --passphrase $pass -o pub_key --decrypt pub_key.gpg
   ret=$?
   echo "=========="
-  if $ret == 0
+  if $ret is 0
     echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
     #
     ask_end=false
-    while $ask_end == false
+    while not $ask_end
       ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
-    if $file_correct == true
+    if $file_correct is true
       break
     else
       :
@@ -459,22 +459,22 @@ echo "The above output is also saved to /root/lssh.config and" $config["mount_pa
 tell_press_enter
 
 end=false
-while $end == false
+while not $end
   ask_yn close_disks "Do you want to close the disks and USB key?"
   ask_if_correct end
 
-if $close_disks == true
+if $close_disks is true
   umount -R /mnt
 
 clear
 
-if $close_disks == true
+if $close_disks is true
   # Shut down
   end=false
-  while $end == false
+  while not $end
     ask_yn shutdown_system "Do you want to shut down now?"
     ask_if_correct end
-  if $shutdown_system == true
+  if $shutdown_system is true
     poweroff
 else
   echo "No shutting down will be done by the script since the disks are not closed"

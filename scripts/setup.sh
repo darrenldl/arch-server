@@ -321,6 +321,90 @@ read ans
 eval ''"${ret}"'='"${ans}"''
 }
 
+ask_yn() {
+{
+local ret msg;
+[ $# -ge 1 ] && ret="${1}"
+[ $# -ge 2 ] && msg="${2}"
+}
+while true; do
+echo -ne "${msg}"' y/n : '
+read ans
+if [ "${ans}" = 'y' ]; then
+eval ''"${ret}"'=true'
+break
+else
+if [ "${ans}" = 'n' ]; then
+eval ''"${ret}"'=false'
+break
+else
+echo -e "${INVALID_ANS}"
+fi
+fi
+done
+}
+
+ask_if_correct() {
+{
+local ret;
+[ $# -ge 1 ] && ret="${1}"
+}
+ask_yn "${ret}" 'Is this correct?'
+}
+
+default_wait=1 
+wait_and_clear() {
+{
+local v;
+[ $# -ge 1 ] && v="${1}"
+}
+if empty "${1}"; then
+sleep "${default_wait}"
+else
+sleep "${v}"
+fi
+clear
+}
+
+tell_press_enter() {
+echo 'Press enter to continue'
+read
+}
+
+install_with_retries() {
+{
+local package_name;
+[ $# -ge 1 ] && package_name="${1}"
+}
+if empty "${1}"; then
+echo 'Too few parameters'
+exit
+fi
+retries=5 
+retries_left="${retries}" 
+while true; do
+echo 'Installing '''"${package_name}"''' package'
+arch-chroot "${config['mount_path']}" pacman --noconfirm -S "${package_name}"
+if [ $? = 0 ]; then
+break
+else
+retries_left=$["${retries_left}" 1 ]
+fi
+if [ "${retries_left}" = 0 ]; then
+echo 'Package install failed '''"${retries}"''' times'
+ask_yn change_name 'Do you want to change package name before continuing retry?'
+if "${change_name}"; then
+ask_new_name_end=false 
+while ! "${ask_new_name_end}"; do
+ask_ans package_name 'Please enter new package name : '
+ask_if_correct ask_new_name_end
+done
+fi
+retries_left="${retries}" 
+fi
+done
+}
+
 
 set +e
 
@@ -371,7 +455,7 @@ echo 'Choose editor'
 echo ''
 
 end=false 
-while [ $(( ${end} )) -eq $(( ${false:-0} )) ]; do
+while ! "${end}"; do
 ask_ans config['editor'] 'Please specifiy an editor to use'
 if [ -x "$( command -v "${config['editor']}" )" ]; then
 echo Editor selected : "${config['editor']}"
@@ -391,7 +475,7 @@ tell_press_enter
 
 mirrorlist_path='/etc/pacman.d/mirrorlist' 
 end=false 
-while [ $(( ${end} )) -eq $(( ${false:-0} )) ]; do
+while ! "${end}"; do
 "${config['editor']}" "${mirrorlist_path}"
 clear
 ask_yn end 'Finished editing'
@@ -404,7 +488,7 @@ echo 'Choose system partition'
 echo ''
 
 end=false 
-while [ $(( ${end} )) -eq $(( ${false:-0} )) ]; do
+while ! "${end}"; do
 ask_ans config['sys_disk'] 'Please specify the system disk'
 if [ -b "${config['sys_disk']}" ]; then
 echo 'System parition picked :' ''"${config}"'['sys_disk']'
@@ -439,7 +523,7 @@ config['sys_disk_size_KiB']=$(( ( "${config['sys_disk_size_bytes']}"/1024 ) ))
 config['sys_disk_size_MiB']=$(( ( "${config['sys_disk_size_KiB']}"/1024 ) )) 
 config['sys_disk_size_GiB']=$(( ( "${config['sys_disk_size_MiB']}"/1024 ) )) 
 
-if [ $(( "${config['efi_mode']}" )) -eq $(( ${true:-0} )) ]; then
+if [ "${config['efi_mode']}" = true ]; then
 echo 'Creating GPT partition table'
 parted -s "${config['sys_disk']}" mklabel gpt &>/dev/null
 echo 'Calculating partition sizes'
@@ -509,4 +593,286 @@ mount "${config['sys_part_boot']}" "${config['mount_path']}"/boot
 
 wait_and_clear 2
 
+
+while true; do
+echo 'Installing base system(base base-devel)'
+pacstrap /mnt base base-devel
+if [ $? = 0 ]; then
+break
+else
+:
+fi
+done
+
+clear
+
+echo 'Generating fstab'
+mkdir -p "${config['mount_path']}"/etc
+genfstab -U "${config['mount_path']}" >> "${config['mount_path']}"/etc/fstab
+
+wait_and_clear 2
+
+
+end=false 
+while ! "${end}"; do
+ask_ans config['host_name'] 'Please enter hostname'
+echo 'You entered : ' "${config['host_name']}"
+ask_if_correct end
+done
+
+echo "${config['host_name']}" > "${config['mount_path']}"/etc/hostname
+
+wait_and_clear 2
+
+echo 'Setting locale'
+sed -i 's@#en_US.UTF-8 UTF-8@en_US.UTF-8 UTF-8@g' "${config['mount_path']}"/etc/locale.gen
+echo 'LANG=en_US.UTF-8' > "${config['mount_path']}"/etc/locale.conf
+arch-chroot "${config['mount_path']}" locale-gen
+
+wait_and_clear 2
+
+
+while true; do
+echo 'Updating package database'
+arch-chroot "${config['mount_path']}" pacman --noconfirm -Sy
+if [ $? = 0 ]; then
+break
+else
+:
+fi
+done
+
+
+while true; do
+echo 'Installing prerequisites for wifi-menu'
+arch-chroot "${config['mount_path']}" pacman --noconfirm -S dialog wpa_supplicant
+if [ $? = 0 ]; then
+break
+else
+:
+fi
+done
+
+clear
+
+while true; do
+echo 'Setting root password'
+arch-chroot "${config['mount_path']}" passwd
+if [ $? = 0 ]; then
+break
+else
+:
+fi
+done
+
+clear
+
+
+install_with_retries 'grub'
+
+if [ "${config['efi_mode']}" = true ]; then
+install_with_retries 'efibootmgr'
+install_with_retries 'efitools'
+fi
+
+clear
+
+
+echo 'Install grub onto system disk'
+if [ "${config['efi_mode']}" = true ]; then
+echo 'Reset ESP directory'
+rm -rf "${config['mount_path']}"/boot/efi
+mkdir -p "${config['mount_path']}"/boot/efi
+echo 'Mounting ESP partition'
+mount "${config['sys_part_esp']}" "${config['mount_path']}"/boot/efi
+arch-chroot "${config['mount_path']}" grub-install --target'='x86_64-efi --efi-directory'='/boot/efi --bootloader-id'='grub
+else
+arch-chroot "${config['mount_path']}" grub-install --target'='i386-pc --boot-directory'='/boot "${config['sys_disk']}"
+fi
+
+echo 'Generating grub configuration file'
+arch-chroot "${config['mount_path']}" grub-mkconfig -o /boot/grub/grub.cfg
+
+wait_and_clear 2
+
+
+echo 'Setting up files in /root directory'
+config['lssh_dir_name']='lssh_pack' 
+config['lssh_dir_path']="${config['mount_path']}"/root/"${config['lssh_dir_name']}" 
+mkdir -p "${config['lssh_dir_path']}"
+
+
+echo 'Copying useradd helper scripts'
+config['useradd_helper1_name']='useradd_helper_as_powerful.sh' 
+config['useradd_helper1_path']="${config['llsh_dir_path']}"/"${config['useradd_helper1_name']}" 
+cp "${config['useradd_helper1_name']}" "${config['useradd_helper1_path']}"
+chmod u=rx "${config['useradd_helper1_path']}"
+chmod g=rx "${config['useradd_helper1_path']}"
+chmod o="${config['useradd_helper1_path']}"
+
+config['useradd_helper2_name']='useradd_helper_restricted.sh' 
+config['useradd_helper2_path']="${config['llsh_dir_path']}"/"${config['useradd_helper2_name']}" 
+cp "${config['useradd_helper2_name']}" "${config['useradd_helper2_path']}"
+chmod u=rx "${config['useradd_helper2_path']}"
+chmod g=rx "${config['useradd_helper2_path']}"
+chmod o="${config['useradd_helper2_path']}"
+
+echo 'User setup'
+echo ''
+
+while true; do
+ask_end=false 
+while ! "${ask_end}"; do
+ask_ans config['user_name'] 'Please enter the main user name(this will be used for SSH access)'
+echo 'You entered : ' "${config['user_name']}"
+ask_if_correct ask_end
+done
+echo 'Adding user'
+arch-chroot "${config['mount_path']}" useradd -m "${config['user_name']}" -G users,wheel,rfkill
+if [ $? = 0 ]; then
+break
+else
+echo 'Failed to add user'
+echo 'Please check whether the user name is correctly specified and if acceptable by the system'
+tell_press_enter
+fi
+done
+
+while true; do
+echo 'Setting password for user :' "${config['user_name']}"
+arch-chroot "${config['mount_path']}" passwd "${config['user_name']}"
+if [ $? = 0 ]; then
+break
+else
+echo 'Failed to set password'
+echo 'Please repeat the procedure'
+tell_press_enter
+fi
+done
+
+echo 'User :' "${config['user_name']}" 'added'
+
+wait_and_clear 2
+
+echo 'Install SSH'
+
+install_with_retries 'openssh'
+
+wait_and_clear 2
+
+echo 'Copying SSH server config over'
+
+cp ../saltstack/salt/sshd_config /mnt/etc/ssh/
+
+wait_and_clear 2
+
+echo 'Enabling SSH server'
+
+arch-chroot "${config['mount_path']}" systemctl enable sshd
+
+wait_and_clear 2
+
+echo 'Setting up SSH keys'
+
+config['user_home']="${config['mount_path']}"/home/"${config['user_name']}" 
+mkdir "${config['user_home']}"/.ssh
+arch-chroot "${config['mount_path']}" chown "${config['user_name']}":"${config['user_name']}" /home/"${config['user_name']}"/.ssh
+config['ssh_key_path']="${config['user_home']}"/.ssh/authorized_keys 
+awk_cmd='{print ''\$(NF-2)'';exit}' 
+config['ip_addr']="$( ip route get 8.8.8.8 | awk "${awk_cmd}" )" 
+config['port']=40001 
+
+while true; do
+pass="$( cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1 )" 
+echo 'Transfer the PUBLIC key to the server using one of the following commands'
+echo 'cat PUBKEY | gpg -c | ncat '"${config['ip_addr']}"' '"${config['port']}"' # enter passphrase '"${pass}"' when prompted'
+echo 'or'
+echo 'cat PUBKEY | gpg --batch --yes --passphrase '"${pass}"' -c | ncat '"${config['ip_addr']}"' '"${config['port']}"''
+ncat -lp "${config['port']}" > pub_key.gpg
+echo 'File received'
+echo 'Decrypting file'
+echo '=========='
+gpg --batch --yes --passphrase "${pass}" -o pub_key --decrypt pub_key.gpg
+ret=$? 
+echo '=========='
+if [ "${ret}" = 0 ]; then
+echo 'SHA256 hash of decrypted file :' "$( sha256sum pub_key )"
+ask_end=false 
+while ! "${ask_end}"; do
+ask_yn file_correct 'Does the hash match the hash of the original file?'
+ask_if_correct ask_end
+done
+if [ "${file_correct}" = true ]; then
+break
+else
+:
+fi
+else
+echo 'Decryption failed'
+fi
+done
+
+clear
+
+echo 'Installing SSH key to user :' "${config['user']}"
+
+cat pub_key > "${config['ssh_key_path']}"
+rm pub_key
+
+wait_and_clear 2
+
+
+echo 'Generating saltstack execution script'
+config['salt_exec_script_name']='salt_exec.sh' 
+config['salt_exec_script_path']="${config['lssh_dir_path']}"/"${config['salt_exec_script_name']}" 
+cp salt_stack_execute_template "${config['salt_exec_script_path']}"
+chown root:root "${config['salt_exec_script_path']}"
+chmod u=rx "${config['salt_exec_script_path']}"
+chmod g=rx "${config['salt_exec_script_path']}"
+chmod o="${config['salt_exec_script_path']}"
+
+
+install_with_retries 'salt'
+
+wait_and_clear 2
+
+
+echo 'Updating saltstack config'
+sed -i 's@#file_client: remote@file_client: local@g' "${config['mount_path']}"/etc/salt/minion
+
+wait_and_clear 2
+
+
+config['saltstack_files_path']='../saltstack' 
+echo 'Copying saltstack files over to system'
+cp -r "${config['saltstack_files_path']}"/* "${config['mount_path']}"/srv
+
+wait_and_clear 2
+
+
+echo 'Configuring salt files to target user : '"${user_name}"
+sed -i 's@USER_NAME_DUMMY@'"${config['user_name']}"'@g' "${config['mount_path']}"/srv/pillar/user.sls
+
+wait_and_clear 2
+
+
+echo 'Below is the configuration recorded'
+print_map config
+print_map config >> /root/lssh.config
+print_map config >> "${config['mount_path']}"/root/lssh.config
+echo 'The above output is also saved to /root/lssh.config and' "${config['mount_path']}"/root/lssh.config
+
+tell_press_enter
+
+end=false 
+while ! "${end}"; do
+ask_yn close_disks 'Do you want to close the disks and USB key?'
+ask_if_correct end
+done
+
+if [ "${close_disks}" = true ]; then
+umount -R /mnt
+fi
+
+clear
 

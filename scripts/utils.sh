@@ -279,7 +279,6 @@ true
 
 
 
-
 INVALID_ANS='Invalid answer' 
 
 print_kv() {
@@ -403,13 +402,6 @@ retries_left="${retries}"
 fi
 done
 }
-
-
-end=false 
-while ! "${end}"; do
-echo 'Hello'
-ask_yn end 'End?'
-done
 
 
 
