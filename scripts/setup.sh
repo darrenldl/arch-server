@@ -812,6 +812,8 @@ fi
 else
 echo 'Decryption failed'
 fi
+rm -f pub_key.gpg
+rm -f pub_key
 done
 
 clear

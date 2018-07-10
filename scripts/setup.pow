@@ -406,6 +406,8 @@ while true
       :
   else
     echo "Decryption failed"
+  rm -f pub_key.gpg
+  rm -f pub_key
 
 clear
 
