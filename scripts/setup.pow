@@ -432,7 +432,7 @@ cp salt_stack_execute_template $config["salt_exec_script_path"]
 chown root:root $config["salt_exec_script_path"]
 chmod u=rx $config["salt_exec_script_path"]
 chmod g=rx $config["salt_exec_script_path"]
-chmod o=   $config["salt_exec_script_path"]
+chmod o="" $config["salt_exec_script_path"]
 
 # Install saltstack
 install_with_retries "salt"
