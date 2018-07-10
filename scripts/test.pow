@@ -1,5 +1,5 @@
 #!/usr/bin/env powscript
-# require 'utils.pow'
+require 'utils.pow'
 
 f()
   echo $#
@@ -8,9 +8,8 @@ f
 f "a"
 
 config={}
-config["a"]=1
+config["a"]=2
 
 echo $config["a"]
 
-if -b $config["a"]
-  echo "Test"
+div_rup "( ${config["a"]} * 4)" 3

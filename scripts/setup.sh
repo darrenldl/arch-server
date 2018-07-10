@@ -529,11 +529,11 @@ echo 'Creating GPT partition table'
 parted -s "${config['sys_disk']}" mklabel gpt &>/dev/null
 echo 'Calculating partition sizes'
 esp_part_size=200 
-esp_part_perc="$( div_rup ( "${esp_part_size}" * 100 ) "${config['sys_disk_size_MiB']}" )" 
+esp_part_perc="$( div_rup '('"${esp_part_size}"' * 100)' "${config['sys_disk_size_MiB']}" )" 
 esp_part_beg_perc=0 
 esp_part_end_perc="${esp_part_perc}" 
 boot_part_size=200 
-boot_part_perc="$( div_rup ( "${esp_part_end_perc}" * 100 ) "${config['sys_disk_size_MiB']}" )" 
+boot_part_perc="$( div_rup '('"${esp_part_end_perc}"' * 100)' "${config['sys_disk_size_MiB']}" )" 
 boot_part_beg_perc="${esp_part_end_perc}" 
 boot_part_end_perc=$(( ( ${boot_part_beg_perc:-0}+${boot_part_perc:-0} ) )) 
 root_part_beg_perc="${boot_part_end_perc}" 
@@ -554,7 +554,7 @@ echo 'Creating MBR partition table'
 parted -s "${config['sys_disk']}" mklabel msdos &>/dev/null
 echo 'Partitioning'
 boot_part_size=200 
-boot_part_perc="$( div_rup ( "${boot_part_size}" * 100 ) "${config['sys_disk_size_MiB']}" )" 
+boot_part_perc="$( div_rup '('"${boot_part_size}"' * 100)' "${config['sys_disk_size_MiB']}" )" 
 boot_part_beg_perc=0 
 boot_part_end_perc="${boot_part_perc}" 
 root_part_beg_perc="${boot_part_end_perc}" 
