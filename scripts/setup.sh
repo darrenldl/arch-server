@@ -779,7 +779,7 @@ config['user_home']="${config['mount_path']}"/home/"${config['user_name']}"
 mkdir "${config['user_home']}"/.ssh
 arch-chroot "${config['mount_path']}" chown "${config['user_name']}":"${config['user_name']}" /home/"${config['user_name']}"/.ssh
 config['ssh_key_path']="${config['user_home']}"/.ssh/authorized_keys 
-awk_cmd='{print ''\$(NF-2)'';exit}' 
+awk_cmd='{print '$ ( NF-2 ) ';exit}'
 config['ip_addr']="$( ip route get 8.8.8.8 | awk "${awk_cmd}" )" 
 config['port']=40001 
 
@@ -815,7 +815,7 @@ done
 
 clear
 
-echo 'Installing SSH key to user :' "${config['user']}"
+echo 'Installing SSH key to user :' "${config['user_name']}"
 
 cat pub_key > "${config['ssh_key_path']}"
 rm pub_key
@@ -893,15 +893,11 @@ echo 'No shutting down will be done by the script since the disks are not closed
 wait_and_clear 2
 fi
 
-cat <<ENDOFEXECEOF
-
-=============='='
-
-End of execution
-
-=============='='
-
-ENDOFEXECEOF
+echo '==============='
+echo ''
+echo 'End of execution'
+echo ''
+echo '==============='
 
 
 
