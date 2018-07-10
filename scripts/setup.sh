@@ -780,8 +780,7 @@ config['user_home']="${config['mount_path']}"/home/"${config['user_name']}"
 mkdir "${config['user_home']}"/.ssh
 arch-chroot "${config['mount_path']}" chown "${config['user_name']}":"${config['user_name']}" /home/"${config['user_name']}"/.ssh
 config['ssh_key_path']="${config['user_home']}"/.ssh/authorized_keys 
-awk_cmd='{print '$ ( NF-2 ) ';exit}'
-config['ip_addr']="$( ip route get 8.8.8.8 | awk "${awk_cmd}" )" 
+config['ip_addr']="$( ip route get 8.8.8.8 | awk '{print $(NF-2);exit}' )" 
 config['port']=40001 
 
 while true; do
