@@ -872,7 +872,7 @@ print_map config >> /root/lssh.config
 print_map config >> "${config['mount_path']}"/root/lssh.config
 echo 'The above output is also saved to /root/lssh.config and' "${config['mount_path']}"/root/lssh.config
 
-echo ""
+echo ''
 
 tell_press_enter
 clear
