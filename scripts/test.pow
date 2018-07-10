@@ -1,7 +1,8 @@
 #!/usr/bin/env powscript
-require 'utils.pow'
+# require 'utils.pow'
 
-end=false
-while not $end
-  echo "Hello"
-  ask_yn end "End?"
+f()
+  echo $#
+
+f
+f "a"

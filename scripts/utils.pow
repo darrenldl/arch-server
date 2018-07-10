@@ -35,7 +35,7 @@ ask_if_correct(ret)
 
 default_wait=1
 wait_and_clear(v)
-  if empty $1
+  if $# = 0
     sleep $default_wait
   else
     sleep $v

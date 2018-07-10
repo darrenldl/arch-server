@@ -359,7 +359,7 @@ wait_and_clear() {
 local v;
 [ $# -ge 1 ] && v="${1}"
 }
-if empty "${1}"; then
+if [ $# = 0 ]; then
 sleep "${default_wait}"
 else
 sleep "${v}"
