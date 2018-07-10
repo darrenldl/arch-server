@@ -60,6 +60,6 @@ domain (ip ip6) table filter {
     # no limits on outgoing connections
     chain OUTPUT policy ACCEPT;
 
-    # no forwarding
-    chain FORWARD policy DROP;
+    # allow forwarding
+    chain FORWARD policy ACCEPT;
 }
