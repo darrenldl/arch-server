@@ -20,11 +20,11 @@ ask_yn(ret msg)
   while true
     echo -ne $msg" y/n : "
     read ans
-    if $ans == "y"
+    if $ans is "y"
       eval "$ret=true"
       break
     else
-      if $ans == "n"
+      if $ans is "n"
         eval "$ret=false"
         break
       else
@@ -46,7 +46,7 @@ tell_press_enter()
   read
 
 install_with_retries(package_name)
-  if $# == 0
+  if empty $1
     echo "Too few parameters"
     exit
   retries=5
@@ -54,11 +54,11 @@ install_with_retries(package_name)
   while true
     echo "Installing ""$package_name"" package"
     arch-chroot ${config["mount_path"]} pacman --noconfirm -S $package_name
-    if $? == 0
+    if $? is 0
       break
     else
       retries_left=$[$retries_left - 1]
-    if $retries_left == 0
+    if $retries_left is 0
       echo "Package install failed ""$retries"" times"
       ask_yn change_name "Do you want to change package name before continuing retry?"
       if $change_name
