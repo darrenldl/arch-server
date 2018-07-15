@@ -726,7 +726,7 @@ while true; do
 ask_end=false 
 while ! "${ask_end}"; do
 ask_ans config['user_name'] 'Please enter the main user name(this will be used for SSH access)'
-echo 'You entered : ' "${config['user_name']}"
+echo 'You entered :' "${config['user_name']}"
 ask_if_correct ask_end
 done
 echo 'Adding user'
