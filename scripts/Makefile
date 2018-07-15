@@ -1,4 +1,4 @@
-all : setup test
+all : setup add_ssh_keys test
 
 setup :
 	powscript --compile setup.pow > setup.sh.tmp

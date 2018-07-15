@@ -816,7 +816,7 @@ ask_yn file_correct 'Does the hash match the hash of the original file?'
 ask_if_correct ask_end
 done
 if "${file_correct}"; then
-echo 'Installing SSH key to user :' "${config['user_name']}"
+echo 'Installing SSH key for user :' "${config['user_name']}"
 cat pub_key >> "${config['ssh_key_path']}"
 arch-chroot "${config['mount_path']}" chown "${config['user_name']}":"${config['user_name']}" "${config['ssh_key_path']}"
 rm pub_key

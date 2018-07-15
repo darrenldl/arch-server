@@ -53,11 +53,12 @@ while true
       ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
     if $file_correct
-      echo "Installing SSH key to user :" $config["user_name"]
+      echo "Installing SSH key for user :" $config["user_name"]
       cat pub_key >> $config["ssh_key_path"]
       chown $config["user_name"]:$config["user_name"] $config["ssh_key_path"]
       rm pub_key
       #
+      echo ""
       ask_yn add_another "Do you want to add another SSH key?"
       if $add_another
         echo "Adding another SSH key, repeating procedure"
