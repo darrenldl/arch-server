@@ -418,19 +418,16 @@ ask_ans config['user_name'] 'Please enter the name of user you want to configure
 echo 'You entered :' "${config['user_name']}"
 ask_if_correct ask_end
 done
+config['user_home']=/home/"${config['user_name']}" 
+if [ -d "${config['user_home']}" ]; then
+break
+else
+echo 'Directory' "${config['user_home']}" 'not found'
+echo 'Please check whether the user name is correct'
+fi
 done
 
 clear
-
-config['user_home']="${config['mount_path']}"/home/"${config['user_name']}" 
-
-if [ -d "${config['user_home']}" ]; then
-:
-else
-echo Directory "${config['user_home']}" not found
-echo 'Exiting'
-exit
-fi
 
 mkdir -p "${config['user_name']}"/.ssh
 chown "${config['user_name']}":"${config['user_name']}" /home/"${config['user_name']}"/.ssh
