@@ -97,3 +97,4 @@ Screen sessions:
   pkg.installed:
     - pkgs:
       - screen
+      - tmux
