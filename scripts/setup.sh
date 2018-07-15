@@ -719,6 +719,15 @@ chmod u=rx "${config['useradd_helper2_path']}"
 chmod g=rx "${config['useradd_helper2_path']}"
 chmod o='' "${config['useradd_helper2_path']}"
 
+
+echo 'Copying helper for adding SSH keys over'
+config['add_ssh_keys_helper_name']='add_ssh_keys.sh' 
+config['add_ssh_keys_helper_path']="${config['lssh_dir_path']}"/"${config['add_ssh_keys_helper_name']}" 
+cp "${config['add_ssh_keys_helper_name']}" "${config['add_ssh_keys_helper_path']}"
+chmod u=rx "${config['add_ssh_keys_helper_path']}"
+chmod g=rx "${config['add_ssh_keys_helper_path']}"
+chmod o='' "${config['add_ssh_keys_helper_path']}"
+
 echo 'User setup'
 echo ''
 

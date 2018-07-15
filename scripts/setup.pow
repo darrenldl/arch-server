@@ -317,6 +317,15 @@ chmod u=rx $config["useradd_helper2_path"]
 chmod g=rx $config["useradd_helper2_path"]
 chmod o="" $config["useradd_helper2_path"]
 
+# Copy SSH keys helper over
+echo "Copying helper for adding SSH keys over"
+config["add_ssh_keys_helper_name"]="add_ssh_keys.sh"
+config["add_ssh_keys_helper_path"]=$config["lssh_dir_path"]/$config["add_ssh_keys_helper_name"]
+cp $config["add_ssh_keys_helper_name"] $config["add_ssh_keys_helper_path"]
+chmod u=rx $config["add_ssh_keys_helper_path"]
+chmod g=rx $config["add_ssh_keys_helper_path"]
+chmod o="" $config["add_ssh_keys_helper_path"]
+
 echo "User setup"
 echo ""
 
@@ -405,7 +414,7 @@ while true
     if $file_correct
       echo "Installing SSH key to user :" $config["user_name"]
       cat pub_key >> $config["ssh_key_path"]
-      arch-chroot $config["mount_path"] chown $config["user_name"]:$config["user_name"] $config["ssh_key_path"]
+      arch-chroot $config["mount_path"] chown ${config["user_name"]}:${config["user_name"]} ${config["ssh_key_path"]}
       rm pub_key
       #
       ask_yn add_another "Do you want to add another SSH key?"
