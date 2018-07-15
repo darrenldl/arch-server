@@ -1,0 +1,80 @@
+#!/usr/bin/env powscript
+
+require 'utils.pow'
+
+set +e
+
+config={}
+
+while true
+  ask_end=false
+  while not $ask_end
+    ask_ans config["user_name"] "Please enter the name of user you want to configure"
+    echo "You entered :" $config["user_name"]
+    ask_if_correct ask_end
+
+clear
+
+config["user_home"]=${config["mount_path"]}/home/${config["user_name"]}
+
+if -d $config["user_home"]
+  :
+else
+  echo Directory $config["user_home"] not found
+  echo "Exiting"
+  exit
+
+mkdir -p $config["user_name"]/.ssh
+chown ${config["user_name"]}:${config["user_name"]} /home/${config["user_name"]}/.ssh
+config["ssh_key_path"]=${config["user_home"]}/.ssh/authorized_keys
+config["ip_addr"]=$(ip route get 8.8.8.8 | awk '{print $(NF-2);exit}')
+config["port"]=40001
+
+while true
+  pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
+  tmp_pub_key_path=$(mktemp)
+  #
+  echo "Transfer the PUBLIC key to the server using one of the following commands"
+  echo "cat PUBKEY | gpg -c | ncat ${config["ip_addr"]} ${config["port"]} # enter passphrase $pass when prompted"
+  echo "or"
+  echo "cat PUBKEY | gpg --batch --yes --passphrase $pass -c | ncat ${config["ip_addr"]} ${config["port"]}"
+  #
+  ncat -lp $config["port"] > pub_key.gpg
+  echo "File received"
+  echo "Decrypting file"
+  echo "=========="
+  gpg --batch --yes --passphrase $pass -o pub_key --decrypt pub_key.gpg
+  ret=$?
+  echo "=========="
+  echo ""
+  if $ret is 0
+    echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
+    #
+    ask_end=false
+    while not $ask_end
+      ask_yn file_correct "Does the hash match the hash of the original file?"
+      ask_if_correct ask_end
+    if $file_correct
+      echo "Installing SSH key to user :" $config["user_name"]
+      cat pub_key >> $config["ssh_key_path"]
+      chown $config["user_name"]:$config["user_name"] $config["ssh_key_path"]
+      rm pub_key
+      #
+      ask_yn add_another "Do you want to add another SSH key?"
+      if $add_another
+        echo "Adding another SSH key, repeating procedure"
+        echo ""
+        tell_press_enter
+      else
+        break
+    else
+      echo "Incorrect file, repeating procedure"
+      echo ""
+      tell_press_enter
+  else
+    echo "Decryption failed"
+    echo ""
+    tell_press_enter
+  rm -f pub_key.gpg
+  rm -f pub_key
+  clear
