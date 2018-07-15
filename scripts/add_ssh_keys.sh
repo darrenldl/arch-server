@@ -429,7 +429,7 @@ done
 
 clear
 
-mkdir -p "${config['user_name']}"/.ssh
+mkdir -p /home/"${config['user_name']}"/.ssh
 chown "${config['user_name']}":"${config['user_name']}" /home/"${config['user_name']}"/.ssh
 config['ssh_key_path']="${config['user_home']}"/.ssh/authorized_keys 
 config['ip_addr']="$( ip route get 8.8.8.8 | awk '{print $(NF-2);exit}' )" 
