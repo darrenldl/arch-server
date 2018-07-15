@@ -350,7 +350,7 @@ echo "User :" $config["user_name"] "added"
 
 wait_and_clear 2
 
-echo "Install SSH"
+echo "Installing SSH"
 
 install_with_retries "openssh"
 
