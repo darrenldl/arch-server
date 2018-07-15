@@ -783,6 +783,8 @@ config['ssh_key_path']="${config['user_home']}"/.ssh/authorized_keys
 config['ip_addr']="$( ip route get 8.8.8.8 | awk '{print $(NF-2);exit}' )" 
 config['port']=40001 
 
+rm "${config['ssh_key_path']}"
+
 while true; do
 pass="$( cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1 )" 
 echo 'Transfer the PUBLIC key to the server using one of the following commands'
@@ -796,6 +798,7 @@ echo '=========='
 gpg --batch --yes --passphrase "${pass}" -o pub_key --decrypt pub_key.gpg
 ret=$? 
 echo '=========='
+echo ''
 if [ "${ret}" = 0 ]; then
 echo 'SHA256 hash of decrypted file :' "$( sha256sum pub_key )"
 ask_end=false 
@@ -804,13 +807,25 @@ ask_yn file_correct 'Does the hash match the hash of the original file?'
 ask_if_correct ask_end
 done
 if "${file_correct}"; then
-break
+echo 'Installing SSH key to user :' "${config['user_name']}"
+cat pub_key >> "${config['ssh_key_path']}"
+rm pub_key
+ask_yn add_another 'Do you want to add another SSH key?'
+if "${add_another}"; then
+echo 'Adding another SSH key, repeating procedure'
+echo ''
+tell_press_enter
 else
-:
+break
 fi
 else
+echo 'Incorrect file, repeating procedure'
 echo ''
+tell_press_enter
+fi
+else
 echo 'Decryption failed'
+echo ''
 tell_press_enter
 fi
 rm -f pub_key.gpg
@@ -819,11 +834,6 @@ clear
 done
 
 clear
-
-echo 'Installing SSH key to user :' "${config['user_name']}"
-
-cat pub_key > "${config['ssh_key_path']}"
-rm pub_key
 
 wait_and_clear 2
 

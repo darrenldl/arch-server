@@ -377,6 +377,8 @@ config["ssh_key_path"]=${config["user_home"]}/.ssh/authorized_keys
 config["ip_addr"]=$(ip route get 8.8.8.8 | awk '{print $(NF-2);exit}')
 config["port"]=40001
 
+rm $config["ssh_key_path"]
+
 while true
   pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
   #
@@ -392,6 +394,7 @@ while true
   gpg --batch --yes --passphrase $pass -o pub_key --decrypt pub_key.gpg
   ret=$?
   echo "=========="
+  echo ""
   if $ret is 0
     echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
     #
@@ -400,23 +403,30 @@ while true
       ask_yn file_correct "Does the hash match the hash of the original file?"
       ask_if_correct ask_end
     if $file_correct
-      break
+      echo "Installing SSH key to user :" $config["user_name"]
+      cat pub_key >> $config["ssh_key_path"]
+      rm pub_key
+      #
+      ask_yn add_another "Do you want to add another SSH key?"
+      if $add_another
+        echo "Adding another SSH key, repeating procedure"
+        echo ""
+        tell_press_enter
+      else
+        break
     else
-      :
+      echo "Incorrect file, repeating procedure"
+      echo ""
+      tell_press_enter
   else
-    echo ""
     echo "Decryption failed"
+    echo ""
     tell_press_enter
   rm -f pub_key.gpg
   rm -f pub_key
   clear
 
 clear
-
-echo "Installing SSH key to user :" $config["user_name"]
-
-cat pub_key > $config["ssh_key_path"]
-rm pub_key
 
 wait_and_clear 2
 
