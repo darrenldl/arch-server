@@ -47,7 +47,7 @@ while true
   echo "=========="
   echo ""
   if $ret is 0
-    echo "SHA256 hash of decrypted file :" $(sha256sum pub_key)
+    echo "SHA256 hash of decrypted file :" $(sha256sum $tmp_pub_key)
     #
     ask_end=false
     while not $ask_end

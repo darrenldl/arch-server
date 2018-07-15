@@ -452,7 +452,7 @@ ret=$?
 echo '=========='
 echo ''
 if [ "${ret}" = 0 ]; then
-echo 'SHA256 hash of decrypted file :' "$( sha256sum pub_key )"
+echo 'SHA256 hash of decrypted file :' "$( sha256sum "${tmp_pub_key}" )"
 ask_end=false 
 while ! "${ask_end}"; do
 ask_yn file_correct 'Does the hash match the hash of the original file?'
