@@ -437,16 +437,17 @@ config['port']=40001
 
 while true; do
 pass="$( cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1 )" 
-tmp_pub_key_path="$( mktemp )" 
+tmp_encrypted_pub_key="$( mktemp )" 
+tmp_pub_key="$( mktemp )" 
 echo 'Transfer the PUBLIC key to the server using one of the following commands'
 echo 'cat PUBKEY | gpg -c | ncat '"${config['ip_addr']}"' '"${config['port']}"' # enter passphrase '"${pass}"' when prompted'
 echo 'or'
 echo 'cat PUBKEY | gpg --batch --yes --passphrase '"${pass}"' -c | ncat '"${config['ip_addr']}"' '"${config['port']}"''
-ncat -lp "${config['port']}" > pub_key.gpg
+ncat -lp "${config['port']}" > "${tmp_encrypted_pub_key}"
 echo 'File received'
 echo 'Decrypting file'
 echo '=========='
-gpg --batch --yes --passphrase "${pass}" -o pub_key --decrypt pub_key.gpg
+gpg --batch --yes --passphrase "${pass}" -o "${tmp_pub_key}" --decrypt "${tmp_encrypted_pub_key}"
 ret=$? 
 echo '=========='
 echo ''
@@ -459,9 +460,9 @@ ask_if_correct ask_end
 done
 if "${file_correct}"; then
 echo 'Installing SSH key for user :' "${config['user_name']}"
-cat pub_key >> "${config['ssh_key_path']}"
+cat "${tmp_pub_key}" >> "${config['ssh_key_path']}"
 chown "${config['user_name']}":"${config['user_name']}" "${config['ssh_key_path']}"
-rm pub_key
+rm "${tmp_pub_key}"
 echo ''
 ask_yn add_another 'Do you want to add another SSH key?'
 if "${add_another}"; then
@@ -481,10 +482,13 @@ echo 'Decryption failed'
 echo ''
 tell_press_enter
 fi
-rm -f pub_key.gpg
-rm -f pub_key
+rm -f "${tmp_encrypted_pub_key}"
+rm -f "${tmp_pub_key}"
 clear
 done
+
+rm -f "${tmp_encrypted_pub_key}"
+rm -f "${tmp_pub_key}"
 
 
 
