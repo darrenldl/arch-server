@@ -809,6 +809,7 @@ done
 if "${file_correct}"; then
 echo 'Installing SSH key to user :' "${config['user_name']}"
 cat pub_key >> "${config['ssh_key_path']}"
+arch-chroot "${config['mount_path']}" chown "${config['user_name']}":"${config['user_name']}" "${config['ssh_key_path']}"
 rm pub_key
 ask_yn add_another 'Do you want to add another SSH key?'
 if "${add_another}"; then
