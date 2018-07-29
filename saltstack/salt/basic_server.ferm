@@ -11,7 +11,7 @@
 domain (ip ip6) table filter {
     chain PER_IP_FLOOD_DRAIN {
         # allow when under limit
-        mod hashlimit hashlimit 10/second hashlimit-burst 10
+        mod hashlimit hashlimit 50/second hashlimit-burst 50
                       hashlimit-mode dstip hashlimit-name PER_IP_FLOOD_LIMIT ACCEPT;
 
         # log 5/second when above limit
