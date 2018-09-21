@@ -1,7 +1,7 @@
 # linux-server-salt-hard
 
 ### Description
-This currently setup an Arch Linux installation
+This currently sets up an Arch Linux installation
 
 ### Prerequisites
 - Working internet connection
