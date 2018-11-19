@@ -257,6 +257,43 @@ while true
 
 clear
 
+end=false
+while not $end
+  ask_yn config["use_hardened"] "Do you want to install hardened kernel?"
+
+  ask_if_correct end
+
+if $config["use_hardened"]
+  end=false
+
+  while not $end
+    ask_yn config["remove_vanilla"] "Do you want to remove vanilla kernel?"
+
+    ask_if_correct end
+
+  clear
+
+  if $remove_vanilla
+    while true
+      echo "Removing vanilla kernel"
+      arch-chroot $config["mount_path"] pacman --noconfirm -R linux
+      if $? is 0
+        break
+      else
+        :
+
+  wait_and_clear
+
+  install_with_retries linux-hardened
+
+  install_with_retries linux-hardened-headers
+
+  wait_and_clear
+else
+  config["remove_vanilla"]=false
+
+clear
+
 while true
   echo "Setting root password"
   arch-chroot $config["mount_path"] passwd
@@ -275,6 +312,21 @@ if ${config["efi_mode"]}
   install_with_retries "efitools"
 
 clear
+
+echo "Updating grub config"
+config["etc_default_grub_path"]=$config["mount_path"]/etc/default/grub
+
+if $config["use_hardened"]
+  end=false
+  while not $end
+    ask_yn config["set_hardened_as_default"] "Do you want to set GRUB default boot entry to the hardened kernel?"
+
+    ask_if_correct end
+
+  if $config["set_hardened_as_default"]
+    sed -i "s@GRUB_DEFAULT=.*@GRUB_DEFAULT=\"Advanced options for Arch Linux>Arch Linux, with Linux linux-hardened\"@" $config["etc_default_grub_path"]
+
+wait_and_clear 2
 
 # Install grub and required files
 echo "Install grub onto system disk"
