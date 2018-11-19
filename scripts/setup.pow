@@ -260,19 +260,18 @@ clear
 end=false
 while not $end
   ask_yn config["use_hardened"] "Do you want to install hardened kernel?"
-
+  #
   ask_if_correct end
-
+  #
 if $config["use_hardened"]
   end=false
-
+  #
   while not $end
     ask_yn config["remove_vanilla"] "Do you want to remove vanilla kernel?"
-
     ask_if_correct end
-
+  #
   clear
-
+  #
   if $remove_vanilla
     while true
       echo "Removing vanilla kernel"
@@ -281,13 +280,12 @@ if $config["use_hardened"]
         break
       else
         :
-
+  #
   wait_and_clear
-
+  #
   install_with_retries linux-hardened
-
   install_with_retries linux-hardened-headers
-
+  #
   wait_and_clear
 else
   config["remove_vanilla"]=false
