@@ -1,5 +1,7 @@
 # linux-server-salt-hard
 
+This repo has been migrated to [oali-profiles](https://github.com/darrenldl/oali-profiles)
+
 ### Description
 This currently sets up an Arch Linux installation
 
